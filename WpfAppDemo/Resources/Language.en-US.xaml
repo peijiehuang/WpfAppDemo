@@ -5,7 +5,7 @@
     <sys:String x:Key="Login_Title">Login</sys:String>
     <sys:String x:Key="Login_Welcome">Welcome Back</sys:String>
     <sys:String x:Key="Login_ProductTitle">ANTIGRAVITY</sys:String>
-    <sys:String x:Key="Login_ProductSubTitle">NEXT-GEN WPF SCAFFOLDING</sys:String>
+    <sys:String x:Key="Login_ProductSubTitle">WPF SCAFFOLDING</sys:String>
     <sys:String x:Key="Login_ProductDesc">Experience the perfect synergy of Prism, Material Design, and SqlSugar. Build enterprise-grade desktop applications with unmatched speed and elegance.</sys:String>
     <sys:String x:Key="Login_SignIn">Sign In</sys:String>
     <sys:String x:Key="Login_Username">Username</sys:String>

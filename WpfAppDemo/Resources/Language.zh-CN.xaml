@@ -5,7 +5,7 @@
     <sys:String x:Key="Login_Title">登录</sys:String>
     <sys:String x:Key="Login_Welcome">欢迎回来</sys:String>
     <sys:String x:Key="Login_ProductTitle">ANTIGRAVITY</sys:String>
-    <sys:String x:Key="Login_ProductSubTitle">下一代 WPF 快速开发通用模板</sys:String>
+    <sys:String x:Key="Login_ProductSubTitle">WPF 快速开发通用模板</sys:String>
     <sys:String x:Key="Login_ProductDesc">体验 Prism、Material Design 和 SqlSugar 的完美融合。比以往更快速地构建企业级桌面应用。</sys:String>
     <sys:String x:Key="Login_SignIn">登录系统</sys:String>
     <sys:String x:Key="Login_Username">用户名</sys:String>
