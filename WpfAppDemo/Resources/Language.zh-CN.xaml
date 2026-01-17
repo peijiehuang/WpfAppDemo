@@ -1,0 +1,49 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- Login Page -->
+    <sys:String x:Key="Login_Title">登录</sys:String>
+    <sys:String x:Key="Login_Welcome">欢迎回来</sys:String>
+    <sys:String x:Key="Login_ProductTitle">ANTIGRAVITY</sys:String>
+    <sys:String x:Key="Login_ProductSubTitle">下一代 WPF 快速开发通用模板</sys:String>
+    <sys:String x:Key="Login_ProductDesc">体验 Prism、Material Design 和 SqlSugar 的完美融合。比以往更快速地构建企业级桌面应用。</sys:String>
+    <sys:String x:Key="Login_SignIn">登录系统</sys:String>
+    <sys:String x:Key="Login_Username">用户名</sys:String>
+    <sys:String x:Key="Login_Password">密码</sys:String>
+    <sys:String x:Key="Login_BtnLogin">登录</sys:String>
+    <sys:String x:Key="Login_BtnExit">退出程序</sys:String>
+    <sys:String x:Key="Login_Error">用户名或密码错误。</sys:String>
+
+    <!-- Main Shell -->
+    <sys:String x:Key="Shell_Title">WPF Material Design &amp; Prism 演示</sys:String>
+    <sys:String x:Key="Shell_MenuTitle">应用菜单</sys:String>
+    <sys:String x:Key="Shell_Dashboard">仪表盘</sys:String>
+    <sys:String x:Key="Shell_Users">用户管理</sys:String>
+    <sys:String x:Key="Shell_SwitchLanguage">切换语言</sys:String>
+    <sys:String x:Key="Shell_Logout">注销</sys:String>
+    <sys:String x:Key="Shell_ToggleTheme">切换主题</sys:String>
+
+    <!-- Dashboard -->
+    <sys:String x:Key="Dashboard_Welcome">欢迎使用 WPF 快速开发通用模板</sys:String>
+    <sys:String x:Key="Dashboard_SubTitle">基于 Prism 框架 + Material Design 设计</sys:String>
+
+    <!-- User Management -->
+    <sys:String x:Key="User_Title">用户管理</sys:String>
+    <sys:String x:Key="User_BtnAdd">新增用户</sys:String>
+    <sys:String x:Key="User_HeaderUsername">用户名</sys:String>
+    <sys:String x:Key="User_HeaderName">姓名</sys:String>
+    <sys:String x:Key="User_HeaderEmail">邮箱</sys:String>
+    <sys:String x:Key="User_HeaderRole">角色</sys:String>
+    <sys:String x:Key="User_HeaderActions">操作</sys:String>
+
+    <!-- User Edit -->
+    <sys:String x:Key="User_EditTitle">编辑用户</sys:String>
+    <sys:String x:Key="User_AddTitle">新增用户</sys:String>
+    <sys:String x:Key="User_HintUsername">用户名</sys:String>
+    <sys:String x:Key="User_HintPassword">密码</sys:String>
+    <sys:String x:Key="User_HintName">完整姓名</sys:String>
+    <sys:String x:Key="User_HintEmail">电子邮箱</sys:String>
+    <sys:String x:Key="User_HintRole">角色</sys:String>
+    <sys:String x:Key="User_BtnSave">保存</sys:String>
+    <sys:String x:Key="User_BtnCancel">取消</sys:String>
+</ResourceDictionary>

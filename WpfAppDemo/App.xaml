@@ -1,0 +1,22 @@
+﻿<prism:PrismApplication x:Class="WpfAppDemo.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:WpfAppDemo"
+             xmlns:prism="http://prismlibrary.com/"
+             xmlns:common="clr-namespace:WpfAppDemo.Common"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+    <prism:PrismApplication.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:BundledTheme BaseTheme="Light" 
+                                             PrimaryColor="DeepPurple" 
+                                             SecondaryColor="Cyan"
+                                             ColorAdjustment="{materialDesign:ColorAdjustment}" />
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+                <ResourceDictionary Source="/Resources/Language.zh-CN.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+            <common:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+            <common:ResourceStringConverter x:Key="ResourceStringConverter"/>
+        </ResourceDictionary>
+    </prism:PrismApplication.Resources>
+</prism:PrismApplication>

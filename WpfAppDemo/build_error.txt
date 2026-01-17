@@ -1,0 +1,11 @@
+  姝ｅ湪纭畾瑕佽繕鍘熺殑椤圭洰鈥?
+  鎵€鏈夐」鐩潎鏄渶鏂扮殑锛屾棤娉曡繕鍘熴€?
+D:\Source\C#\WpfAppDemo\WpfAppDemo\Views\MainWindow.xaml(40,30): error MC3072: XML 鍛藉悕绌洪棿鈥渉ttp://materialdesigninxaml.net/winfx/xaml/themes鈥濅腑涓嶅瓨鍦ㄥ睘鎬р€淟istBoxAssist.ShowSelectionHighlight鈥濄€?琛?40 浣嶇疆 30. [D:\Source\C#\WpfAppDemo\WpfAppDemo\WpfAppDemo.csproj]
+
+鐢熸垚澶辫触銆?
+
+D:\Source\C#\WpfAppDemo\WpfAppDemo\Views\MainWindow.xaml(40,30): error MC3072: XML 鍛藉悕绌洪棿鈥渉ttp://materialdesigninxaml.net/winfx/xaml/themes鈥濅腑涓嶅瓨鍦ㄥ睘鎬р€淟istBoxAssist.ShowSelectionHighlight鈥濄€?琛?40 浣嶇疆 30. [D:\Source\C#\WpfAppDemo\WpfAppDemo\WpfAppDemo.csproj]
+    0 涓鍛?
+    1 涓敊璇?
+
+宸茬敤鏃堕棿 00:00:01.14
