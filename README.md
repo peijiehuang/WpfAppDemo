@@ -1,4 +1,4 @@
-# WPF Prism 快速开发通用模板 (Antigravity Project)
+# WPF Prism 快速开发通用模板
 
 这是一个基于 **.NET 8**、**Prism (DryIoc)**、**Material Design in XAML** 和 **SqlSugar** 构建的高级 WPF 通用模板。它旨在为您提供一个生产就绪、颜值极高且易于扩展的企业级桌面应用起点。
 
