@@ -21,5 +21,13 @@ namespace WpfAppDemo.Views
         {
             Application.Current.Shutdown();
         }
+
+        private void Border_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == System.Windows.Input.MouseButton.Left)
+            {
+                this.DragMove();
+            }
+        }
     }
 }

@@ -65,7 +65,7 @@ namespace WpfAppDemo.ViewModels
 
         private async void OnDeleteUser(User user)
         {
-            if (await _messageService.ShowConfirmationAsync($"Are you sure you want to delete user '{user.Username}'?", "Delete Confirm"))
+            if (await _messageService.ShowConfirmationAsync($"确定要删除用户 '{user.Username}' 吗?", "删除确认"))
             {
                 _userService.DeleteUser(user.Id);
                 LoadUsersAsync();

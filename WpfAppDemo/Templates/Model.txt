@@ -1,0 +1,11 @@
+using SqlSugar;
+using System;
+
+namespace {Namespace}.Models
+{
+    [SugarTable("{TableName}")]
+    public class {TableName}
+    {
+{Properties}
+    }
+}

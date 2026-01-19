@@ -1,0 +1,104 @@
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Regions;
+using System;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
+using {Namespace}.Models;
+using {Namespace}.Services;
+
+namespace {Namespace}.ViewModels
+{
+    public class {TableName}ListViewModel : BindableBase, INavigationAware
+    {
+        private readonly I{TableName}Service _{camelTableName}Service;
+        private readonly IRegionManager _regionManager;
+        private readonly IBusyService _busyService;
+        private readonly IMessageService _messageService;
+
+        public ObservableCollection<{TableName}> {TableName}s { get; } = new();
+
+        public DelegateCommand AddCommand { get; }
+        public DelegateCommand<{TableName}> EditCommand { get; }
+        public DelegateCommand<{TableName}> DeleteCommand { get; }
+
+        public {TableName}ListViewModel(I{TableName}Service {camelTableName}Service, IRegionManager regionManager, IBusyService busyService, IMessageService messageService)
+        {
+            _{camelTableName}Service = {camelTableName}Service;
+            _regionManager = regionManager;
+            _busyService = busyService;
+            _messageService = messageService;
+
+            AddCommand = new DelegateCommand(OnAdd);
+            EditCommand = new DelegateCommand<{TableName}>(OnEdit);
+            DeleteCommand = new DelegateCommand<{TableName}>(OnDelete);
+        }
+
+        private async void LoadDataAsync()
+        {
+            try
+            {
+                _busyService.Busy("正在加载 {TableName} 数据...");
+                await Task.Delay(300); // 稍微延迟提升体验
+                
+                var data = _{camelTableName}Service.Get{TableName}s();
+                
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    {TableName}s.Clear();
+                    if (data != null)
+                    {
+                        foreach (var item in data)
+                        {
+                            {TableName}s.Add(item);
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "加载 {TableName} 列表失败");
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => {
+                    _messageService.ShowMessageAsync($"数据加载失败: {ex.Message}", "错误");
+                }));
+            }
+            finally
+            {
+                _busyService.Idle();
+            }
+        }
+
+        private void OnAdd()
+        {
+            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
+        }
+
+        private void OnEdit({TableName} entity)
+        {
+            var parameters = new NavigationParameters { { "{TableName}", entity } };
+            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", parameters);
+        }
+
+        private async void OnDelete({TableName} entity)
+        {
+            var msg = System.Windows.Application.Current.TryFindResource("Common_DeleteMessage")?.ToString() ?? "确定要删除这条记录吗?";
+            if (await _messageService.ShowConfirmationAsync(msg, "Common_DeleteConfirm"))
+            {
+                try
+                {
+                    _{camelTableName}Service.Delete{TableName}(entity.Id);
+                    LoadDataAsync();
+                }
+                catch (Exception ex)
+                {
+                    var errorTitle = System.Windows.Application.Current.TryFindResource("Common_Error")?.ToString() ?? "错误";
+                    await _messageService.ShowMessageAsync($"删除失败: {ex.Message}", errorTitle);
+                }
+            }
+        }
+
+        public void OnNavigatedTo(NavigationContext navigationContext) => LoadDataAsync();
+        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
+        public void OnNavigatedFrom(NavigationContext navigationContext) { }
+    }
+}

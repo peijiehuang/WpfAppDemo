@@ -11,7 +11,7 @@ namespace WpfAppDemo.Common
         {
             if (value is string key)
             {
-                return Application.Current.FindResource(key) ?? key;
+                return Application.Current.TryFindResource(key) ?? key;
             }
             return value;
         }

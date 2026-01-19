@@ -3,6 +3,7 @@ using Prism.Mvvm;
 using Prism.Regions;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Microsoft.Extensions.Configuration;
 using WpfAppDemo.Services; // Assuming ILocalizationService is in this namespace
 
 namespace WpfAppDemo.ViewModels
@@ -12,6 +13,7 @@ namespace WpfAppDemo.ViewModels
         private readonly IRegionManager _regionManager;
         private readonly ILocalizationService _localizationService;
         private readonly IThemeService _themeService;
+        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
         public IBusyService BusyService { get; }
         private string _title = "WPF Prism Scaffolding";
         private MenuItem? _selectedMenuItem;
@@ -41,11 +43,12 @@ namespace WpfAppDemo.ViewModels
 
         public event Action? LogoutRequested;
 
-        public MainWindowViewModel(IRegionManager regionManager, ILocalizationService localizationService, IBusyService busyService, IThemeService themeService)
+        public MainWindowViewModel(IRegionManager regionManager, ILocalizationService localizationService, IBusyService busyService, IThemeService themeService, Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             _regionManager = regionManager;
             _localizationService = localizationService;
             _themeService = themeService;
+            _configuration = configuration;
             BusyService = busyService;
 
             _localizationService.LanguageChanged += OnLanguageChanged;
@@ -74,6 +77,11 @@ namespace WpfAppDemo.ViewModels
             MenuItems.Clear();
             MenuItems.Add(new MenuItem("Shell_Dashboard", "ViewDashboard", "DashboardView"));
             MenuItems.Add(new MenuItem("Shell_Users", "AccountGroup", "UserListView"));
+            MenuItems.Add(new MenuItem("Menu_TEST", "Database", "TESTListView"));
+            if (_configuration.GetValue<bool>("AppSettings:EnableCodeGen"))
+            {
+                MenuItems.Add(new MenuItem("Shell_CodeGen", "CodeArray", "CodeGenView"));
+            }
         }
 
         private void OnLanguageChanged()

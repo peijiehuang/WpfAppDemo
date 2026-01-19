@@ -1,0 +1,11 @@
+using Prism.Mvvm;
+using System;
+using {Namespace}.Models;
+
+namespace {Namespace}.ViewModels
+{
+    public class {TableName}ViewModel : BindableBase
+    {
+{FieldsAndProperties}
+    }
+}

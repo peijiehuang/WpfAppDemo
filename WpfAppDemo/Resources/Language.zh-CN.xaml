@@ -22,6 +22,8 @@
     <sys:String x:Key="Shell_SwitchLanguage">切换语言</sys:String>
     <sys:String x:Key="Shell_Logout">注销</sys:String>
     <sys:String x:Key="Shell_ToggleTheme">切换主题</sys:String>
+    <sys:String x:Key="Shell_CodeGen">代码生成器</sys:String>
+    <sys:String x:Key="Menu_TEST">TEST 管理</sys:String>
 
     <!-- Dashboard -->
     <sys:String x:Key="Dashboard_Welcome">欢迎使用 WPF 快速开发通用模板</sys:String>
@@ -46,4 +48,24 @@
     <sys:String x:Key="User_HintRole">角色</sys:String>
     <sys:String x:Key="User_BtnSave">保存</sys:String>
     <sys:String x:Key="User_BtnCancel">取消</sys:String>
+    <!-- Common / Global -->
+    <sys:String x:Key="Common_Confirm">确定</sys:String>
+    <sys:String x:Key="Common_Cancel">取消</sys:String>
+    <sys:String x:Key="Common_Save">保存</sys:String>
+    <sys:String x:Key="Common_Delete">删除</sys:String>
+    <sys:String x:Key="Common_Info">提示</sys:String>
+    <sys:String x:Key="Common_Warning">警告</sys:String>
+    <sys:String x:Key="Common_Error">错误</sys:String>
+    <sys:String x:Key="Common_DeleteConfirm">删除确认</sys:String>
+    <sys:String x:Key="Common_DeleteMessage">确定要删除这条记录吗?</sys:String>
+    <sys:String x:Key="Common_Loading">正在加载...</sys:String>
+
+    <!-- CodeGen -->
+    <sys:String x:Key="CodeGen_SelectTable">1. 选择数据库表 (自动生成预览)</sys:String>
+    <sys:String x:Key="CodeGen_Export">2. 导出所有代码文件到本地</sys:String>
+    <sys:String x:Key="CodeGen_Instructions">使用说明</sys:String>
+    <sys:String x:Key="CodeGen_Preview">代码预览</sys:String>
+    <sys:String x:Key="CodeGen_Path">建议路径: </sys:String>
+    <sys:String x:Key="CodeGen_Copy">复制内容</sys:String>
+    <sys:String x:Key="Common_Add">新增</sys:String>
 </ResourceDictionary>

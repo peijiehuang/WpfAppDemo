@@ -1,0 +1,23 @@
+<UserControl x:Class="{Namespace}.Views.{TableName}EditView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:prism="http://prismlibrary.com/"
+             prism:ViewModelLocator.AutoWireViewModel="True">
+    <Grid Margin="32">
+        <materialDesign:Card Padding="32" MaxWidth="600" VerticalAlignment="Top" materialDesign:ElevationAssist.Elevation="Dp4">
+            <StackPanel>
+                <TextBlock Text="{Binding Title}" Style="{StaticResource MaterialDesignHeadline5TextBlock}" Margin="0,0,0,24" FontWeight="Bold"/>
+                
+                <StackPanel DataContext="{Binding Entity}">
+{EditControls}
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,32,0,0">
+                    <Button Command="{Binding CancelCommand}" Content="{DynamicResource Common_Cancel}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,16,0" Width="100"/>
+                    <Button Command="{Binding SaveCommand}" Content="{DynamicResource Common_Save}" Style="{StaticResource MaterialDesignRaisedButton}" Width="100"/>
+                </StackPanel>
+            </StackPanel>
+        </materialDesign:Card>
+    </Grid>
+</UserControl>

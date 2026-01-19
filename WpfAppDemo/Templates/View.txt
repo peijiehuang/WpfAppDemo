@@ -1,0 +1,3 @@
+<StackPanel Margin="16">
+{Controls}
+</StackPanel>

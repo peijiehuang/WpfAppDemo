@@ -1,0 +1,12 @@
+using System.Windows.Controls;
+
+namespace {Namespace}.Views
+{
+    public partial class {TableName}ListView : UserControl
+    {
+        public {TableName}ListView()
+        {
+            InitializeComponent();
+        }
+    }
+}

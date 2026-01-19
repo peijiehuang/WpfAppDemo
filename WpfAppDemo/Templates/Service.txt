@@ -1,0 +1,48 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Extensions.Configuration;
+using {Namespace}.Models;
+using SqlSugar;
+
+namespace {Namespace}.Services
+{
+    public class {TableName}Service : I{TableName}Service
+    {
+        private readonly SqlSugarClient _db;
+
+        public {TableName}Service(IConfiguration configuration)
+        {
+            var connectionString = configuration.GetConnectionString("DefaultConnection") 
+                                 ?? "DataSource=app.db";
+
+            _db = new SqlSugarClient(new ConnectionConfig()
+            {
+                ConnectionString = connectionString,
+                DbType = DbType.Sqlite,
+                IsAutoCloseConnection = true,
+                InitKeyType = InitKeyType.Attribute
+            });
+        }
+
+        public IEnumerable<{TableName}> Get{TableName}s()
+        {
+            return _db.Queryable<{TableName}>().ToList();
+        }
+
+        public void Add{TableName}({TableName} entity)
+        {
+            _db.Insertable(entity).ExecuteCommand();
+        }
+
+        public void Update{TableName}({TableName} entity)
+        {
+            _db.Updateable(entity).ExecuteCommand();
+        }
+
+        public void Delete{TableName}(int id)
+        {
+            _db.Deleteable<{TableName}>().In(id).ExecuteCommand();
+        }
+    }
+}

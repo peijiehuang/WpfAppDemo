@@ -1,0 +1,13 @@
+using System.Collections.Generic;
+using {Namespace}.Models;
+
+namespace {Namespace}.Services
+{
+    public interface I{TableName}Service
+    {
+        IEnumerable<{TableName}> Get{TableName}s();
+        void Add{TableName}({TableName} entity);
+        void Update{TableName}({TableName} entity);
+        void Delete{TableName}(int id);
+    }
+}

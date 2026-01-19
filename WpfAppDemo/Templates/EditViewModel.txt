@@ -1,0 +1,78 @@
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Regions;
+using System;
+using {Namespace}.Models;
+using {Namespace}.Services;
+
+namespace {Namespace}.ViewModels
+{
+    public class {TableName}EditViewModel : BindableBase, INavigationAware
+    {
+        private readonly I{TableName}Service _{camelTableName}Service;
+        private readonly IRegionManager _regionManager;
+        private {TableName} _entity = new {TableName}();
+        private string _title = string.Empty;
+
+        public {TableName} Entity
+        {
+            get => _entity;
+            set => SetProperty(ref _entity, value);
+        }
+
+        public string Title
+        {
+            get => _title;
+            set => SetProperty(ref _title, value);
+        }
+
+        public DelegateCommand SaveCommand { get; }
+        public DelegateCommand CancelCommand { get; }
+
+        public {TableName}EditViewModel(I{TableName}Service {camelTableName}Service, IRegionManager regionManager)
+        {
+            _{camelTableName}Service = {camelTableName}Service;
+            _regionManager = regionManager;
+
+            SaveCommand = new DelegateCommand(OnSave);
+            CancelCommand = new DelegateCommand(OnCancel);
+        }
+
+        private void OnSave()
+        {
+            if (Entity == null) return;
+
+            if (Entity.Id == 0)
+                _{camelTableName}Service.Add{TableName}(Entity);
+            else
+                _{camelTableName}Service.Update{TableName}(Entity);
+
+            _regionManager.Regions["ContentRegion"].NavigationService.Journal.GoBack();
+        }
+
+        private void OnCancel()
+        {
+            _regionManager.Regions["ContentRegion"].NavigationService.Journal.GoBack();
+        }
+
+        public void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            if (navigationContext.Parameters.ContainsKey("{TableName}"))
+            {
+                var entity = navigationContext.Parameters.GetValue<{TableName}>("{TableName}");
+                if (entity != null)
+                {
+                    Entity = entity;
+                    Title = "编辑 {TableName}";
+                    return;
+                }
+            }
+            
+            Entity = new {TableName}();
+            Title = "新增 {TableName}";
+        }
+
+        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
+        public void OnNavigatedFrom(NavigationContext navigationContext) { }
+    }
+}

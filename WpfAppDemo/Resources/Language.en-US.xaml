@@ -22,6 +22,8 @@
     <sys:String x:Key="Shell_SwitchLanguage">Language</sys:String>
     <sys:String x:Key="Shell_Logout">Sign Out</sys:String>
     <sys:String x:Key="Shell_ToggleTheme">Toggle Theme</sys:String>
+    <sys:String x:Key="Shell_CodeGen">Code Generator</sys:String>
+    <sys:String x:Key="Menu_TEST">TEST Management</sys:String>
 
     <!-- Dashboard -->
     <sys:String x:Key="Dashboard_Welcome">Welcome to WPF Scaffolding</sys:String>
@@ -46,4 +48,23 @@
     <sys:String x:Key="User_HintRole">Role</sys:String>
     <sys:String x:Key="User_BtnSave">SAVE</sys:String>
     <sys:String x:Key="User_BtnCancel">CANCEL</sys:String>
+    <!-- Common / Global -->
+    <sys:String x:Key="Common_Confirm">CONFIRM</sys:String>
+    <sys:String x:Key="Common_Cancel">CANCEL</sys:String>
+    <sys:String x:Key="Common_Save">SAVE</sys:String>
+    <sys:String x:Key="Common_Delete">DELETE</sys:String>
+    <sys:String x:Key="Common_Info">Information</sys:String>
+    <sys:String x:Key="Common_Warning">Warning</sys:String>
+    <sys:String x:Key="Common_Error">Error</sys:String>
+    <sys:String x:Key="Common_DeleteConfirm">Delete Confirm</sys:String>
+    <sys:String x:Key="Common_DeleteMessage">Are you sure you want to delete this record?</sys:String>
+    <sys:String x:Key="Common_Loading">Loading...</sys:String>
+
+    <!-- CodeGen -->
+    <sys:String x:Key="CodeGen_SelectTable">1. Select Table (Auto Preview)</sys:String>
+    <sys:String x:Key="CodeGen_Export">2. Export All Source Files</sys:String>
+    <sys:String x:Key="CodeGen_Instructions">Instructions</sys:String>
+    <sys:String x:Key="CodeGen_Preview">Code Preview</sys:String>
+    <sys:String x:Key="CodeGen_Path">Target Path: </sys:String>
+    <sys:String x:Key="CodeGen_Copy">Copy Content</sys:String>
 </ResourceDictionary>
