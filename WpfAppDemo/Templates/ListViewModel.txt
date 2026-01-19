@@ -52,6 +52,7 @@ namespace {Namespace}.ViewModels
             try
             {
                 _busyService.Busy("正在查询...");
+                await Task.CompletedTask; // 避免同步执行警告
                 
                 var data = _{camelTableName}Service.Get{TableName}s(SearchText);
                 
@@ -70,9 +71,9 @@ namespace {Namespace}.ViewModels
             catch (Exception ex)
             {
                 Serilog.Log.Error(ex, "查询 {TableName} 列表失败");
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                    _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
-                }));
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => {
+                    await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
+                });
             }
             finally
             {

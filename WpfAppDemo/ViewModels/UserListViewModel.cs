@@ -52,6 +52,7 @@ namespace WpfAppDemo.ViewModels
             try
             {
                 _busyService.Busy("正在查询用户...");
+                await Task.CompletedTask; 
                 Users.Clear();
                 foreach (var user in _userService.GetUsers(SearchText))
                 {

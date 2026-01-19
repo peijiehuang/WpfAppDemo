@@ -1,4 +1,4 @@
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using System;
@@ -51,7 +51,8 @@ namespace WpfAppDemo.ViewModels
         {
             try
             {
-                _busyService.Busy("正在查询 TEST 数据...");
+                _busyService.Busy("正在查询...");
+                await Task.CompletedTask; // 避免同步执行警告
                 
                 var data = _tESTService.GetTESTs(SearchText);
                 

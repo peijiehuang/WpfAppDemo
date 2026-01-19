@@ -4,117 +4,192 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Margin="16">
+        <!-- 主卡片 -->
+        <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp1" 
+                            VerticalAlignment="Stretch"
+                            Background="White"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource MaterialDesignDivider}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/> <!-- 顶部工具栏 -->
+                    <RowDefinition Height="Auto"/> <!-- 分割线 -->
+                    <RowDefinition Height="Auto"/> <!-- 导出状态 -->
+                    <RowDefinition Height="*"/>    <!-- 内容页签 -->
+                </Grid.RowDefinitions>
 
-        <!-- Selection Card -->
-        <materialDesign:Card Padding="16" Margin="0,0,0,16" materialDesign:ElevationAssist.Elevation="Dp2">
-            <StackPanel Orientation="Vertical">
-                <StackPanel Orientation="Horizontal">
-                    <ComboBox ItemsSource="{Binding Tables}" 
-                              SelectedItem="{Binding SelectedTable}" 
-                              materialDesign:HintAssist.Hint="{DynamicResource CodeGen_SelectTable}" 
-                              Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
-                              Width="350" Margin="0,0,24,0"/>
+                <!-- 1. 顶部工具栏 -->
+                <DockPanel Grid.Row="0" Margin="16,12" LastChildFill="False">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <materialDesign:PackIcon Kind="CodeArray" Width="24" Height="24" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        <TextBlock Text="{DynamicResource Shell_CodeGen}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="12,0,24,0" VerticalAlignment="Center" FontWeight="Bold"/>
+                        
+                        <ComboBox ItemsSource="{Binding Tables}" 
+                                  SelectedItem="{Binding SelectedTable}" 
+                                  materialDesign:HintAssist.Hint="{DynamicResource CodeGen_SelectTable}" 
+                                  Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
+                                  Width="300" VerticalAlignment="Center"/>
+                    </StackPanel>
+
                     <Button Command="{Binding SaveToDiskCommand}" 
                             Content="{DynamicResource CodeGen_Export}" 
-                            Style="{StaticResource MaterialDesignRaisedButton}"/>
-                </StackPanel>
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            materialDesign:ButtonAssist.CornerRadius="4"/>
+                </DockPanel>
 
-                <!-- Export Path and Open Button -->
-                <materialDesign:ColorZone Mode="Standard" Padding="12,8" CornerRadius="4" Margin="0,16,0,0" 
-                                          Visibility="{Binding LastExportPath, Converter={StaticResource StringToVisibilityConverter}}"
-                                          BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1">
+                <Separator Grid.Row="1" Style="{StaticResource MaterialDesignLightSeparator}" Margin="0"/>
+
+                <!-- 2. 导出状态栏 -->
+                <Border Grid.Row="2" Margin="16,8" Padding="12,8" 
+                        Visibility="{Binding LastExportPath, Converter={StaticResource StringToVisibilityConverter}}"
+                        Background="#F9F9F9"
+                        BorderBrush="Green" 
+                        BorderThickness="1"
+                        CornerRadius="4">
                     <DockPanel>
                         <materialDesign:PackIcon Kind="FolderCheck" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="Green"/>
-                        <TextBlock Text="导出成功至: " VerticalAlignment="Center" FontWeight="Bold"/>
-                        <TextBox Text="{Binding LastExportPath}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        <TextBlock VerticalAlignment="Center">
+                            <Run Text="导出成功至: " FontWeight="Bold" Foreground="#666666"/>
+                            <Run Text="{Binding LastExportPath}" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        </TextBlock>
                         <Button Command="{Binding OpenExportFolderCommand}" 
                                 Content="打开文件夹" 
                                 DockPanel.Dock="Right"
                                 HorizontalAlignment="Right"
                                 Style="{StaticResource MaterialDesignFlatButton}"
-                                Padding="8,0"/>
+                                Padding="8,0" Height="24"/>
                     </DockPanel>
-                </materialDesign:ColorZone>
-            </StackPanel>
-        </materialDesign:Card>
+                </Border>
 
-        <!-- Main Content Tabs -->
-        <materialDesign:Card Grid.Row="1" materialDesign:ElevationAssist.Elevation="Dp2">
-            <TabControl Style="{StaticResource MaterialDesignNavigationRailTabControl}" 
-                        TabStripPlacement="Left" 
-                        materialDesign:ColorZoneAssist.Mode="PrimaryMid">
-                
-                <!-- Tab 1: Instructions -->
-                <TabItem Header="{DynamicResource CodeGen_Instructions}">
-                    <DockPanel Margin="24">
-                        <materialDesign:ColorZone DockPanel.Dock="Top" Mode="PrimaryLight" Padding="16" CornerRadius="4" Margin="0,0,0,16">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="HelpCircle" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                <TextBlock Text="{DynamicResource CodeGen_Instructions}" Style="{StaticResource MaterialDesignSubtitle1TextBlock}" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </materialDesign:ColorZone>
-                        <TextBox Text="{Binding UsageInstructions}" 
-                                 IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
-                                 VerticalScrollBarVisibility="Auto" FontSize="14"
-                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                    </DockPanel>
-                </TabItem>
+                <!-- 3. 主内容区 -->
+                <Grid Grid.Row="3">
+                    <TabControl Style="{StaticResource MaterialDesignNavigationRailTabControl}" 
+                                TabStripPlacement="Left" 
+                                materialDesign:ColorZoneAssist.Mode="Standard"
+                                Background="White">
+                        
+                        <!-- Tab 1: 使用说明 -->
+                        <TabItem Header="{DynamicResource CodeGen_Instructions}">
+                            <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource MaterialDesignDivider}">
+                                <Grid Margin="24">
+                                    <!-- 为使用说明文本框添加边框 -->
+                                    <Border BorderBrush="{DynamicResource MaterialDesignDivider}" 
+                                            BorderThickness="1" 
+                                            CornerRadius="8"
+                                            Background="#FCFCFC">
+                                        <TextBox Text="{Binding UsageInstructions}" 
+                                                 IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                                                 VerticalScrollBarVisibility="Auto" FontSize="14"
+                                                 BorderThickness="0"
+                                                 Padding="20"
+                                                 Background="Transparent"
+                                                 Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </TabItem>
 
-                <!-- Tab 2: Code Files -->
-                <TabItem Header="{DynamicResource CodeGen_Preview}">
-                    <Grid>
-                        <TabControl ItemsSource="{Binding GeneratedFiles}" 
-                                    Style="{StaticResource MaterialDesignTabControl}"
-                                    Margin="16">
-                            <TabControl.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Name}" Margin="4,0"/>
-                                </DataTemplate>
-                            </TabControl.ItemTemplate>
-                            <TabControl.ContentTemplate>
-                                <DataTemplate>
-                                    <DockPanel Margin="0,16,0,0">
-                                        <materialDesign:ColorZone DockPanel.Dock="Top" Mode="Light" Padding="12,8" CornerRadius="4" Margin="0,0,0,12" materialDesign:ElevationAssist.Elevation="Dp1">
-                                            <Grid>
-                                                <StackPanel Orientation="Horizontal">
-                                                    <materialDesign:PackIcon Kind="FileCodeOutline" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                                                    <TextBlock Text="{DynamicResource CodeGen_Path}" VerticalAlignment="Center" FontWeight="Bold"/>
-                                                    <TextBox Text="{Binding Path}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Margin="4,0"/>
-                                                </StackPanel>
-                                                <Button HorizontalAlignment="Right" 
-                                                        Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                        CommandParameter="{Binding Path}" 
-                                                        Style="{StaticResource MaterialDesignIconButton}" Width="30" Height="30">
-                                                    <materialDesign:PackIcon Kind="ContentCopy" Width="16" Height="16"/>
-                                                </Button>
-                                            </Grid>
-                                        </materialDesign:ColorZone>
-                                        <Grid>
-                                            <TextBox Text="{Binding Content}" 
-                                                     IsReadOnly="True" AcceptsReturn="True" 
-                                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
-                                                     FontFamily="Consolas" 
-                                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
-                                            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,16,0" 
-                                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
-                                                    CommandParameter="{Binding Content}" 
-                                                    Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" 
-                                                    ToolTip="{DynamicResource CodeGen_Copy}">
-                                                <materialDesign:PackIcon Kind="ContentCopy" Width="20" Height="20"/>
-                                            </Button>
-                                        </Grid>
-                                    </DockPanel>
-                                </DataTemplate>
-                            </TabControl.ContentTemplate>
-                        </TabControl>
-                    </Grid>
-                </TabItem>
-            </TabControl>
+                        <!-- Tab 2: 代码预览 -->
+                        <TabItem Header="{DynamicResource CodeGen_Preview}">
+                            <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource MaterialDesignDivider}">
+                                <Grid Margin="16">
+                                    <TabControl ItemsSource="{Binding GeneratedFiles}" 
+                                                Style="{StaticResource MaterialDesignTabControl}"
+                                                Background="White">
+                                        <TabControl.Template>
+                                            <ControlTemplate TargetType="TabControl">
+                                                <Grid KeyboardNavigation.TabNavigation="Local">
+                                                    <Grid.RowDefinitions>
+                                                        <RowDefinition Height="Auto"/>
+                                                        <RowDefinition Height="*"/>
+                                                    </Grid.RowDefinitions>
+                                                    <!-- 使 Tab 标题支持水平滚动 -->
+                                                    <ScrollViewer HorizontalScrollBarVisibility="Auto" 
+                                                                  VerticalScrollBarVisibility="Disabled" 
+                                                                  HorizontalAlignment="Stretch">
+                                                        <TabPanel x:Name="HeaderPanel" 
+                                                                  IsItemsHost="True" 
+                                                                  KeyboardNavigation.TabIndex="1" 
+                                                                  Panel.ZIndex="1"/>
+                                                    </ScrollViewer>
+                                                    <Border x:Name="ContentPanel" 
+                                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                                            BorderThickness="{TemplateBinding BorderThickness}" 
+                                                            Background="{TemplateBinding Background}" 
+                                                            Grid.Row="1" 
+                                                            KeyboardNavigation.DirectionalNavigation="Contained" 
+                                                            KeyboardNavigation.TabIndex="2" 
+                                                            KeyboardNavigation.TabNavigation="Local">
+                                                        <ContentPresenter x:Name="PART_SelectedContentHost" 
+                                                                          ContentSource="SelectedContent" 
+                                                                          Margin="{TemplateBinding Padding}" 
+                                                                          SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                    </Border>
+                                                </Grid>
+                                            </ControlTemplate>
+                                        </TabControl.Template>
+                                        <TabControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <TextBlock Text="{Binding Name}" Margin="4,0"/>
+                                            </DataTemplate>
+                                        </TabControl.ItemTemplate>
+                                        <TabControl.ContentTemplate>
+                                            <DataTemplate>
+                                                <DockPanel Margin="0,16,0,0">
+                                                    <!-- 路径栏：强化边框 -->
+                                                    <Border DockPanel.Dock="Top" Background="#F5F5F5" 
+                                                            BorderBrush="{DynamicResource MaterialDesignDivider}"
+                                                            BorderThickness="1"
+                                                            CornerRadius="4" Padding="12,4" Margin="0,0,0,12">
+                                                        <Grid>
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="FileCodeOutline" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.6"/>
+                                                                <TextBlock Text="{DynamicResource CodeGen_Path}" VerticalAlignment="Center" FontWeight="Bold" Opacity="0.6"/>
+                                                                <TextBox Text="{Binding Path}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Margin="4,0" Opacity="0.8"/>
+                                                            </StackPanel>
+                                                            <Button HorizontalAlignment="Right" 
+                                                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                    CommandParameter="{Binding Path}" 
+                                                                    Style="{StaticResource MaterialDesignIconButton}" Width="24" Height="24">
+                                                                <materialDesign:PackIcon Kind="ContentCopy" Width="14" Height="14"/>
+                                                            </Button>
+                                                        </Grid>
+                                                    </Border>
+                                                    <!-- 代码编辑器：强化边框与圆角 -->
+                                                    <Border BorderBrush="{DynamicResource MaterialDesignDivider}" 
+                                                            BorderThickness="1" 
+                                                            CornerRadius="8"
+                                                            Background="White">
+                                                        <Grid>
+                                                            <TextBox Text="{Binding Content}" 
+                                                                     IsReadOnly="True" AcceptsReturn="True" 
+                                                                     VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" 
+                                                                     FontFamily="Consolas" 
+                                                                     Padding="16"
+                                                                     BorderThickness="0"
+                                                                     Background="Transparent"
+                                                                     Style="{StaticResource MaterialDesignOutlinedTextBox}"/>
+                                                            <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,8,16,0" 
+                                                                    Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
+                                                                    CommandParameter="{Binding Content}" 
+                                                                    Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" 
+                                                                    ToolTip="{DynamicResource CodeGen_Copy}">
+                                                                <materialDesign:PackIcon Kind="ContentCopy" Width="20" Height="20"/>
+                                                            </Button>
+                                                        </Grid>
+                                                    </Border>
+                                                </DockPanel>
+                                            </DataTemplate>
+                                        </TabControl.ContentTemplate>
+                                    </TabControl>
+                                </Grid>
+                            </Border>
+                        </TabItem>
+                    </TabControl>
+                </Grid>
+            </Grid>
         </materialDesign:Card>
     </Grid>
 </UserControl>
