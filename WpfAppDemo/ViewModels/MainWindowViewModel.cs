@@ -81,7 +81,6 @@ namespace WpfAppDemo.ViewModels
             {
                 MenuItems.Add(new MenuItem("Shell_CodeGen", "CodeArray", "CodeGenView"));
             }
-            MenuItems.Add(new MenuItem("Menu_TEST", "Database", "TESTListView"));
         }
 
         private void OnLanguageChanged()
