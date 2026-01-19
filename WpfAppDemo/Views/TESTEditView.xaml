@@ -15,8 +15,8 @@
                 </StackPanel>
 
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,32,0,0">
-                    <Button Command="{Binding CancelCommand}" Content="取消" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,16,0" Width="100"/>
-                    <Button Command="{Binding SaveCommand}" Content="保存" Style="{StaticResource MaterialDesignRaisedButton}" Width="100"/>
+                    <Button Command="{Binding CancelCommand}" Content="{DynamicResource Common_Cancel}" Style="{StaticResource MaterialDesignOutlinedButton}" Margin="0,0,16,0" Width="100"/>
+                    <Button Command="{Binding SaveCommand}" Content="{DynamicResource Common_Save}" Style="{StaticResource MaterialDesignRaisedButton}" Width="100"/>
                 </StackPanel>
             </StackPanel>
         </materialDesign:Card>

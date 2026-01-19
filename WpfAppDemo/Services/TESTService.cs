@@ -25,9 +25,11 @@ namespace WpfAppDemo.Services
             });
         }
 
-        public IEnumerable<TEST> GetTESTs()
+        public IEnumerable<TEST> GetTESTs(string keyword = null)
         {
-            return _db.Queryable<TEST>().ToList();
+            return _db.Queryable<TEST>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Name.Contains(keyword))
+                .ToList();
         }
 
         public void AddTEST(TEST entity)

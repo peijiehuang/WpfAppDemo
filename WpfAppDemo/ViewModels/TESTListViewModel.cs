@@ -15,10 +15,18 @@ namespace WpfAppDemo.ViewModels
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
+        private string _searchText = string.Empty;
 
         public ObservableCollection<TEST> TESTs { get; } = new();
 
+        public string SearchText
+        {
+            get => _searchText;
+            set => SetProperty(ref _searchText, value);
+        }
+
         public DelegateCommand AddCommand { get; }
+        public DelegateCommand SearchCommand { get; }
         public DelegateCommand<TEST> EditCommand { get; }
         public DelegateCommand<TEST> DeleteCommand { get; }
 
@@ -30,6 +38,7 @@ namespace WpfAppDemo.ViewModels
             _messageService = messageService;
 
             AddCommand = new DelegateCommand(OnAdd);
+            SearchCommand = new DelegateCommand(LoadDataAsync);
             EditCommand = new DelegateCommand<TEST>(OnEdit);
             DeleteCommand = new DelegateCommand<TEST>(OnDelete);
         }
@@ -38,10 +47,10 @@ namespace WpfAppDemo.ViewModels
         {
             try
             {
-                _busyService.Busy("正在加载 TEST 数据...");
-                await Task.Delay(300); // 稍微延迟提升体验
+                _busyService.Busy("正在查询...");
+                await Task.Delay(200); 
                 
-                var data = _tESTService.GetTESTs();
+                var data = _tESTService.GetTESTs(SearchText);
                 
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
@@ -57,9 +66,9 @@ namespace WpfAppDemo.ViewModels
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "加载 TEST 列表失败");
+                Serilog.Log.Error(ex, "查询 TEST 列表失败");
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                    _messageService.ShowMessageAsync($"数据加载失败: {ex.Message}", "错误");
+                    _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
                 }));
             }
             finally
@@ -81,7 +90,8 @@ namespace WpfAppDemo.ViewModels
 
         private async void OnDelete(TEST entity)
         {
-            if (await _messageService.ShowConfirmationAsync($"确定要删除这条记录吗?", "删除确认"))
+            var msg = System.Windows.Application.Current.TryFindResource("Common_DeleteMessage")?.ToString() ?? "确定要删除这条记录吗?";
+            if (await _messageService.ShowConfirmationAsync(msg, "Common_DeleteConfirm"))
             {
                 try
                 {
@@ -90,7 +100,8 @@ namespace WpfAppDemo.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    await _messageService.ShowMessageAsync($"删除失败: {ex.Message}", "错误");
+                    var errorTitle = System.Windows.Application.Current.TryFindResource("Common_Error")?.ToString() ?? "错误";
+                    await _messageService.ShowMessageAsync($"删除失败: {ex.Message}", errorTitle);
                 }
             }
         }

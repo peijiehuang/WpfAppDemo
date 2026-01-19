@@ -25,9 +25,11 @@ namespace {Namespace}.Services
             });
         }
 
-        public IEnumerable<{TableName}> Get{TableName}s()
+        public IEnumerable<{TableName}> Get{TableName}s(string keyword = null)
         {
-            return _db.Queryable<{TableName}>().ToList();
+            return _db.Queryable<{TableName}>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
+                .ToList();
         }
 
         public void Add{TableName}({TableName} entity)

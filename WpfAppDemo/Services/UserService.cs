@@ -8,7 +8,7 @@ namespace WpfAppDemo.Services
 {
     public interface IUserService
     {
-        IEnumerable<User> GetUsers();
+        IEnumerable<User> GetUsers(string keyword = null);
         void AddUser(User user);
         void UpdateUser(User user);
         void DeleteUser(int id);
@@ -39,9 +39,11 @@ namespace WpfAppDemo.Services
             _db.CodeFirst.InitTables(typeof(User));
         }
 
-        public IEnumerable<User> GetUsers()
+        public IEnumerable<User> GetUsers(string keyword = null)
         {
-            return _db.Queryable<User>().ToList();
+            return _db.Queryable<User>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword) || it.Name.Contains(keyword) || it.Email.Contains(keyword))
+                .ToList();
         }
 
         public void AddUser(User user)

@@ -218,12 +218,30 @@ namespace WpfAppDemo.ViewModels
                 }
                 content = content.Replace("{Properties}", props.ToString());
             }
+            else if (fileName == "Service.txt")
+            {
+                // 生成搜索逻辑，查找所有字符串类型的列
+                var stringCols = columns.Where(c => MapType(c.DataType) == "string").ToList();
+                string searchLogic = "true";
+                if (stringCols.Any())
+                {
+                    searchLogic = string.Join(" || ", stringCols.Select(c => $"it.{c.DbColumnName}.Contains(keyword)"));
+                }
+                content = content.Replace("{SearchLogic}", searchLogic);
+            }
             else if (fileName == "ListView.txt")
             {
                 var cols = new StringBuilder();
                 foreach (var col in columns)
                 {
-                    cols.AppendLine($"                <DataGridTextColumn Header=\"{col.DbColumnName}\" Binding=\"{{Binding {col.DbColumnName}}}\" Width=\"Auto\"/>");
+                    cols.AppendLine($"                <DataGridTextColumn Header=\"{col.DbColumnName}\" Binding=\"{{Binding {col.DbColumnName}}}\" Width=\"Auto\">");
+                    cols.AppendLine($"                    <DataGridTextColumn.ElementStyle>");
+                    cols.AppendLine($"                        <Style TargetType=\"TextBlock\">");
+                    cols.AppendLine($"                            <Setter Property=\"HorizontalAlignment\" Value=\"Center\"/>");
+                    cols.AppendLine($"                            <Setter Property=\"VerticalAlignment\" Value=\"Center\"/>");
+                    cols.AppendLine($"                        </Style>");
+                    cols.AppendLine($"                    </DataGridTextColumn.ElementStyle>");
+                    cols.AppendLine($"                </DataGridTextColumn>");
                 }
                 content = content.Replace("{Columns}", cols.ToString());
             }

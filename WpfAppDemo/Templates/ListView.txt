@@ -4,40 +4,106 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
              prism:ViewModelLocator.AutoWireViewModel="True">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Grid Margin="16">
+        <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp1" VerticalAlignment="Stretch">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Background="{DynamicResource MaterialDesignPaper}" Padding="24,16" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0,0,0,1">
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="{TableName}" Style="{StaticResource MaterialDesignHeadline5TextBlock}" FontWeight="Bold" VerticalAlignment="Center"/>
-                <Button Command="{Binding AddCommand}" Content="{DynamicResource Common_Add}" Style="{StaticResource MaterialDesignRaisedButton}" Margin="24,0,0,0"/>
-            </StackPanel>
-        </Border>
-
-        <DataGrid Grid.Row="1" ItemsSource="{Binding {TableName}s}" AutoGenerateColumns="False" IsReadOnly="True" Style="{StaticResource MaterialDesignDataGrid}">
-            <DataGrid.Columns>
-{Columns}
-                <DataGridTemplateColumn Width="120">
-                    <DataGridTemplateColumn.Header>
-                        <TextBlock Text="Actions" />
-                    </DataGridTemplateColumn.Header>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
+                <!-- Header Section -->
+                <DockPanel Grid.Row="0" Margin="16,12" LastChildFill="False">
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+                        <materialDesign:PackIcon Kind="ViewList" Width="24" Height="24" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        <TextBlock Text="{TableName}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="12,0,24,0" VerticalAlignment="Center" FontWeight="Bold"/>
+                        
+                        <!-- Search Box -->
+                        <materialDesign:ColorZone Mode="Standard" Padding="8,2" CornerRadius="4" materialDesign:ElevationAssist.Elevation="Dp0" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1">
                             <StackPanel Orientation="Horizontal">
-                                <Button Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource MaterialDesignIconButton}" Foreground="{DynamicResource PrimaryHueMidBrush}">
-                                    <materialDesign:PackIcon Kind="Pencil" Width="18" Height="18"/>
-                                </Button>
-                                <Button Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource MaterialDesignIconButton}" Foreground="Red">
-                                    <materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/>
-                                </Button>
+                                <materialDesign:PackIcon Kind="Magnify" Opacity=".5" VerticalAlignment="Center" Margin="4,0"/>
+                                <TextBox Width="200" 
+                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                         materialDesign:HintAssist.Hint="输入关键字搜索..." 
+                                         materialDesign:TextFieldAssist.HasClearButton="True"
+                                         BorderThickness="0" 
+                                         VerticalAlignment="Center">
+                                    <TextBox.InputBindings>
+                                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
+                                    </TextBox.InputBindings>
+                                </TextBox>
                             </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+                        </materialDesign:ColorZone>
+                        <Button Command="{Binding SearchCommand}" Content="搜索" Margin="8,0,0,0" Style="{StaticResource MaterialDesignFlatButton}"/>
+                    </StackPanel>
+
+                    <Button Command="{Binding AddCommand}" 
+                            Content="{DynamicResource Common_Add}" 
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource MaterialDesignRaisedButton}"
+                            materialDesign:ButtonAssist.CornerRadius="4"/>
+                </DockPanel>
+
+                <Separator Grid.Row="1" Style="{StaticResource MaterialDesignLightSeparator}" Margin="0"/>
+
+                <!-- DataGrid Section -->
+                <DataGrid Grid.Row="2" ItemsSource="{Binding {TableName}s}" 
+                          AutoGenerateColumns="False" 
+                          IsReadOnly="True" 
+                          CanUserAddRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
+                          BorderThickness="0"
+                          Background="Transparent"
+                          SelectionUnit="FullRow"
+                          Style="{StaticResource MaterialDesignDataGrid}">
+                    <DataGrid.Resources>
+                        <!-- 表头居中 -->
+                        <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
+                            <Setter Property="FontWeight" Value="Bold"/>
+                            <Setter Property="Padding" Value="16,12"/>
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                        </Style>
+                        <!-- 单元格内容垂直水平居中 -->
+                        <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
+                            <Setter Property="Padding" Value="16,10"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                        </Style>
+                    </DataGrid.Resources>
+                    <DataGrid.Columns>
+{Columns}
+                        <DataGridTemplateColumn Width="120" Header="操作">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <Button Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                Width="32" Height="32"
+                                                Foreground="{DynamicResource PrimaryHueMidBrush}"
+                                                ToolTip="编辑">
+                                            <materialDesign:PackIcon Kind="Pencil" Width="18" Height="18"/>
+                                        </Button>
+                                        <Button Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                Width="32" Height="32"
+                                                Foreground="Red" Opacity="0.7"
+                                                Margin="4,0,0,0">
+                                            <materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/>
+                                        </Button>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </materialDesign:Card>
     </Grid>
 </UserControl>
