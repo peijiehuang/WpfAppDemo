@@ -27,6 +27,7 @@ namespace WpfAppDemo.ViewModels
         private readonly ICodeGenService _codeGenService;
         private string? _selectedTable;
         private string _usageInstructions = string.Empty;
+        private string _lastExportPath = string.Empty;
         private const string Namespace = "WpfAppDemo";
 
         public ObservableCollection<string> Tables { get; } = new ObservableCollection<string>();
@@ -38,6 +39,12 @@ namespace WpfAppDemo.ViewModels
             set => SetProperty(ref _usageInstructions, value);
         }
 
+        public string LastExportPath
+        {
+            get => _lastExportPath;
+            set => SetProperty(ref _lastExportPath, value);
+        }
+
         public string? SelectedTable
         {
             get => _selectedTable;
@@ -47,23 +54,71 @@ namespace WpfAppDemo.ViewModels
                 {
                     UpdateGeneratedContent();
                     UpdateUsageInstructions();
+                    LastExportPath = string.Empty;
                 }
             }
         }
 
         public DelegateCommand SaveToDiskCommand { get; }
+        public DelegateCommand OpenExportFolderCommand { get; }
         public DelegateCommand<string> CopyTextCommand { get; }
 
         public CodeGenViewModel(ICodeGenService codeGenService)
         {
             _codeGenService = codeGenService;
             SaveToDiskCommand = new DelegateCommand(OnSaveToDisk);
+            OpenExportFolderCommand = new DelegateCommand(OnOpenExportFolder);
             CopyTextCommand = new DelegateCommand<string>(OnCopyText);
             
             System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(LoadTables));
         }
 
-        private void LoadTables()
+        private void OnOpenExportFolder()
+        {
+            if (string.IsNullOrEmpty(LastExportPath)) return;
+            try
+            {
+                if (Directory.Exists(LastExportPath))
+                {
+                    System.Diagnostics.Process.Start("explorer.exe", LastExportPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"无法打开目录: {ex.Message}");
+            }
+        }
+
+        private void OnSaveToDisk()
+        {
+            if (!GeneratedFiles.Any()) return;
+
+            try 
+            {
+                string projectDir = Directory.GetCurrentDirectory();
+                string outputDir = Path.Combine(projectDir, "GeneratedCode", SelectedTable ?? "Unknown");
+
+                if (Directory.Exists(outputDir)) Directory.Delete(outputDir, true);
+                Directory.CreateDirectory(outputDir);
+
+                foreach (var file in GeneratedFiles)
+                {
+                    string filePath = Path.Combine(outputDir, file.Path.Replace("/", "\\"));
+                    string? dirPath = Path.GetDirectoryName(filePath);
+                    if (dirPath != null) Directory.CreateDirectory(dirPath); 
+                    
+                    File.WriteAllText(filePath, file.Content, Encoding.UTF8);
+                }
+
+                LastExportPath = outputDir;
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show($"保存失败: {ex.Message}", "错误");
+            }
+        }
+
+        private void OnLoadTables()
         {
             try
             {
@@ -75,6 +130,11 @@ namespace WpfAppDemo.ViewModels
             {
                 Serilog.Log.Error(ex, "CodeGen: Failed to load tables");
             }
+        }
+
+        private void LoadTables()
+        {
+            OnLoadTables();
         }
 
         private void UpdateUsageInstructions()
@@ -158,35 +218,6 @@ namespace WpfAppDemo.ViewModels
             }
         }
 
-        private void OnSaveToDisk()
-        {
-            if (!GeneratedFiles.Any()) return;
-
-            try 
-            {
-                string projectDir = Directory.GetCurrentDirectory();
-                string outputDir = Path.Combine(projectDir, "GeneratedCode", SelectedTable ?? "Unknown");
-
-                if (Directory.Exists(outputDir)) Directory.Delete(outputDir, true);
-                Directory.CreateDirectory(outputDir);
-
-                foreach (var file in GeneratedFiles)
-                {
-                    string filePath = Path.Combine(outputDir, file.Path.Replace("/", "\\"));
-                    string? dirPath = Path.GetDirectoryName(filePath);
-                    if (dirPath != null) Directory.CreateDirectory(dirPath); 
-                    
-                    File.WriteAllText(filePath, file.Content, Encoding.UTF8);
-                }
-
-                System.Windows.MessageBox.Show($"代码已成功生成至目录:\n{outputDir}", "导出成功");
-            }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show($"保存失败: {ex.Message}", "错误");
-            }
-        }
-
         private void OnCopyText(string text)
         {
             if (!string.IsNullOrEmpty(text)) System.Windows.Clipboard.SetText(text);
@@ -220,13 +251,27 @@ namespace WpfAppDemo.ViewModels
             }
             else if (fileName == "Service.txt")
             {
-                // 生成搜索逻辑，查找所有字符串类型的列
-                var stringCols = columns.Where(c => MapType(c.DataType) == "string").ToList();
-                string searchLogic = "true";
-                if (stringCols.Any())
+                string searchField = "Id"; 
+                if (columns.Count >= 2)
                 {
-                    searchLogic = string.Join(" || ", stringCols.Select(c => $"it.{c.DbColumnName}.Contains(keyword)"));
+                    searchField = columns[1].DbColumnName;
                 }
+                else if (columns.Count >= 1)
+                {
+                    searchField = columns[0].DbColumnName;
+                }
+
+                var targetCol = columns.FirstOrDefault(c => c.DbColumnName == searchField);
+                string searchLogic;
+                if (targetCol != null && MapType(targetCol.DataType) == "string")
+                {
+                    searchLogic = $"it.{searchField}.Contains(keyword)";
+                }
+                else
+                {
+                    searchLogic = $"it.{searchField}.ToString().Contains(keyword)";
+                }
+
                 content = content.Replace("{SearchLogic}", searchLogic);
             }
             else if (fileName == "ListView.txt")
@@ -235,13 +280,13 @@ namespace WpfAppDemo.ViewModels
                 foreach (var col in columns)
                 {
                     cols.AppendLine($"                <DataGridTextColumn Header=\"{col.DbColumnName}\" Binding=\"{{Binding {col.DbColumnName}}}\" Width=\"Auto\">");
-                    cols.AppendLine($"                    <DataGridTextColumn.ElementStyle>");
-                    cols.AppendLine($"                        <Style TargetType=\"TextBlock\">");
-                    cols.AppendLine($"                            <Setter Property=\"HorizontalAlignment\" Value=\"Center\"/>");
-                    cols.AppendLine($"                            <Setter Property=\"VerticalAlignment\" Value=\"Center\"/>");
-                    cols.AppendLine($"                        </Style>");
-                    cols.AppendLine($"                    </DataGridTextColumn.ElementStyle>");
-                    cols.AppendLine($"                </DataGridTextColumn>");
+                    cols.AppendLine("                    <DataGridTextColumn.ElementStyle>");
+                    cols.AppendLine("                        <Style TargetType=\"TextBlock\">");
+                    cols.AppendLine("                            <Setter Property=\"HorizontalAlignment\" Value=\"Center\"/>");
+                    cols.AppendLine("                            <Setter Property=\"VerticalAlignment\" Value=\"Center\"/>");
+                    cols.AppendLine("                        </Style>");
+                    cols.AppendLine("                    </DataGridTextColumn.ElementStyle>");
+                    cols.AppendLine("                </DataGridTextColumn>");
                 }
                 content = content.Replace("{Columns}", cols.ToString());
             }
@@ -250,7 +295,6 @@ namespace WpfAppDemo.ViewModels
                 var controls = new StringBuilder();
                 foreach (var col in columns)
                 {
-                    // 跳过自增列和主键列，这些通常不需要手动填写
                     if (col.IsIdentity || col.IsPrimarykey) continue;
                     
                     controls.AppendLine($"                <TextBox materialDesign:HintAssist.Hint=\"{col.DbColumnName}\" Text=\"{{Binding {col.DbColumnName}}}\" Margin=\"0,8\" Style=\"{{StaticResource MaterialDesignFloatingHintTextBox}}\"/>");

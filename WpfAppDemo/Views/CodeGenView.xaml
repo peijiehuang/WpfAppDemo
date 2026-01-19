@@ -12,15 +12,34 @@
 
         <!-- Selection Card -->
         <materialDesign:Card Padding="16" Margin="0,0,0,16" materialDesign:ElevationAssist.Elevation="Dp2">
-            <StackPanel Orientation="Horizontal">
-                <ComboBox ItemsSource="{Binding Tables}" 
-                          SelectedItem="{Binding SelectedTable}" 
-                          materialDesign:HintAssist.Hint="{DynamicResource CodeGen_SelectTable}" 
-                          Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
-                          Width="350" Margin="0,0,24,0"/>
-                <Button Command="{Binding SaveToDiskCommand}" 
-                        Content="{DynamicResource CodeGen_Export}" 
-                        Style="{StaticResource MaterialDesignRaisedButton}"/>
+            <StackPanel Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox ItemsSource="{Binding Tables}" 
+                              SelectedItem="{Binding SelectedTable}" 
+                              materialDesign:HintAssist.Hint="{DynamicResource CodeGen_SelectTable}" 
+                              Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
+                              Width="350" Margin="0,0,24,0"/>
+                    <Button Command="{Binding SaveToDiskCommand}" 
+                            Content="{DynamicResource CodeGen_Export}" 
+                            Style="{StaticResource MaterialDesignRaisedButton}"/>
+                </StackPanel>
+
+                <!-- Export Path and Open Button -->
+                <materialDesign:ColorZone Mode="Standard" Padding="12,8" CornerRadius="4" Margin="0,16,0,0" 
+                                          Visibility="{Binding LastExportPath, Converter={StaticResource StringToVisibilityConverter}}"
+                                          BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1">
+                    <DockPanel>
+                        <materialDesign:PackIcon Kind="FolderCheck" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="Green"/>
+                        <TextBlock Text="导出成功至: " VerticalAlignment="Center" FontWeight="Bold"/>
+                        <TextBox Text="{Binding LastExportPath}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Margin="8,0" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                        <Button Command="{Binding OpenExportFolderCommand}" 
+                                Content="打开文件夹" 
+                                DockPanel.Dock="Right"
+                                HorizontalAlignment="Right"
+                                Style="{StaticResource MaterialDesignFlatButton}"
+                                Padding="8,0"/>
+                    </DockPanel>
+                </materialDesign:ColorZone>
             </StackPanel>
         </materialDesign:Card>
 
