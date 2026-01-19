@@ -1,15 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
-using {Namespace}.Models;
+using WpfAppDemo.Models;
 
 namespace {Namespace}.Services
 {
     public interface I{TableName}Service
     {
-        IEnumerable<{TableName}> Get{TableName}s(string keyword = null);
+        IEnumerable<{TableName}> Get{TableName}s(string? keyword = null);
         void Add{TableName}({TableName} entity);
         void Update{TableName}({TableName} entity);
         void Delete{TableName}(int id);
-        MemoryStream Export{TableName}s(string keyword = null);
+        MemoryStream Export{TableName}s(string? keyword = null);
     }
 }

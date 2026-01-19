@@ -52,7 +52,6 @@ namespace {Namespace}.ViewModels
             try
             {
                 _busyService.Busy("正在查询...");
-                await Task.Delay(200); 
                 
                 var data = _{camelTableName}Service.Get{TableName}s(SearchText);
                 

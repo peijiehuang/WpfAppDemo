@@ -265,11 +265,11 @@ namespace WpfAppDemo.ViewModels
                 string searchLogic;
                 if (targetCol != null && MapType(targetCol.DataType) == "string")
                 {
-                    searchLogic = $"it.{searchField}.Contains(keyword)";
+                    searchLogic = $"it.{searchField}.Contains(keyword!)";
                 }
                 else
                 {
-                    searchLogic = $"it.{searchField}.ToString().Contains(keyword)";
+                    searchLogic = $"it.{searchField}.ToString().Contains(keyword!)";
                 }
 
                 content = content.Replace("{SearchLogic}", searchLogic);

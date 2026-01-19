@@ -4,6 +4,7 @@ using System.IO;
 using WpfAppDemo.Models;
 using SqlSugar;
 using MiniExcelLibs;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace WpfAppDemo.Services
 {
@@ -11,7 +12,7 @@ namespace WpfAppDemo.Services
     {
         private readonly SqlSugarClient _db;
 
-        public UserService(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        public UserService(IConfiguration configuration)
         {
             var connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection") 
                                  ?? "DataSource=app.db";
@@ -31,10 +32,10 @@ namespace WpfAppDemo.Services
             _db.CodeFirst.InitTables(typeof(User));
         }
 
-        public IEnumerable<User> GetUsers(string keyword = null)
+        public IEnumerable<User> GetUsers(string? keyword = null)
         {
             return _db.Queryable<User>()
-                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword) || it.Name.Contains(keyword) || it.Email.Contains(keyword))
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword!) || it.Name.Contains(keyword!) || it.Email.Contains(keyword!))
                 .ToList();
         }
 
@@ -53,7 +54,7 @@ namespace WpfAppDemo.Services
             _db.Deleteable<User>().In(id).ExecuteCommand();
         }
 
-        public MemoryStream ExportUsers(string keyword = null)
+        public MemoryStream ExportUsers(string? keyword = null)
         {
             var list = GetUsers(keyword);
             var stream = new MemoryStream();

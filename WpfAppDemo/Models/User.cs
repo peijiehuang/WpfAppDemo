@@ -18,7 +18,7 @@ namespace WpfAppDemo.Models
 
         [ExcelIgnore]
         [SugarColumn(IsIgnore = true)]
-        public string Error => null;
+        public string Error => string.Empty;
 
         [ExcelIgnore]
         [SugarColumn(IsIgnore = true)]
@@ -26,7 +26,7 @@ namespace WpfAppDemo.Models
         {
             get
             {
-                string result = null;
+                string? result = null;
                 switch (columnName)
                 {
                     case nameof(Username):
@@ -44,7 +44,7 @@ namespace WpfAppDemo.Models
                             result = "Password is required.";
                         break;
                 }
-                return result;
+                return result ?? string.Empty;
             }
         }
     }

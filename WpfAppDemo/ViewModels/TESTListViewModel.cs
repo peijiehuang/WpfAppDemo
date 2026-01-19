@@ -1,4 +1,4 @@
-﻿using Prism.Commands;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using System;
@@ -51,8 +51,7 @@ namespace WpfAppDemo.ViewModels
         {
             try
             {
-                _busyService.Busy("正在查询...");
-                await Task.Delay(200); 
+                _busyService.Busy("正在查询 TEST 数据...");
                 
                 var data = _tESTService.GetTESTs(SearchText);
                 
@@ -70,10 +69,10 @@ namespace WpfAppDemo.ViewModels
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "查询 TEST 列表失败");
-                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => {
-                    _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
-                }));
+                Serilog.Log.Error(ex, "加载 TEST 列表失败");
+                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => {
+                    await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "错误");
+                });
             }
             finally
             {
