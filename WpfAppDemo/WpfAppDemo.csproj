@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <!-- 项目配置信息 -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows</TargetFramework>
@@ -7,8 +8,12 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <DefaultItemExcludes>$(DefaultItemExcludes);CodeGenVerifier\**</DefaultItemExcludes>
+    <Description>WPF 示例演示项目 - 采用 Prism 框架与 CommunityToolkit.Mvvm 优化</Description>
   </PropertyGroup>
+
   <ItemGroup>
+    <!-- 核心框架与工具包 -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.2" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.2" />
@@ -24,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- 资源文件更新配置 -->
     <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

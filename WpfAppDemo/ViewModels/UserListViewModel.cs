@@ -1,76 +1,82 @@
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Regions;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Prism.Regions;
+using Serilog;
+using WpfAppDemo.Common;
 using WpfAppDemo.Models;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    public class UserListViewModel : BindableBase, INavigationAware
+    /// <summary>
+    /// 用户列表界面视图模型
+    /// </summary>
+    public partial class UserListViewModel : ViewModelBase
     {
         private readonly IUserService _userService;
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
         
+        [ObservableProperty]
         private string _searchText = string.Empty;
+
+        [ObservableProperty]
         private int _pageIndex = 1;
+
+        [ObservableProperty]
         private int _pageSize = 20;
+
+        [ObservableProperty]
         private int _totalCount;
 
+        /// <summary>
+        /// 用户数据集合
+        /// </summary>
         public ObservableCollection<User> Users { get; } = new();
 
-        public string SearchText { get => _searchText; set => SetProperty(ref _searchText, value); }
-        public int PageIndex { get => _pageIndex; set => SetProperty(ref _pageIndex, value); }
-        public int PageSize
-        {
-            get => _pageSize;
-            set
-            {
-                if (SetProperty(ref _pageSize, value))
-                {
-                    PageIndex = 1;
-                    LoadUsersAsync();
-                }
-            }
-        }
-        public int TotalCount { get => _totalCount; set => SetProperty(ref _totalCount, value); }
-
-        public DelegateCommand AddUserCommand { get; }
-        public DelegateCommand SearchCommand { get; }
-        public DelegateCommand ExportCommand { get; }
-        public DelegateCommand PrevPageCommand { get; }
-        public DelegateCommand NextPageCommand { get; }
-        public DelegateCommand<User> EditUserCommand { get; }
-        public DelegateCommand<User> DeleteUserCommand { get; }
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public UserListViewModel(IUserService userService, IRegionManager regionManager, IBusyService busyService, IMessageService messageService)
         {
             _userService = userService;
             _regionManager = regionManager;
             _busyService = busyService;
             _messageService = messageService;
-
-            AddUserCommand = new DelegateCommand(OnAddUser);
-            SearchCommand = new DelegateCommand(() => { PageIndex = 1; LoadUsersAsync(); });
-            ExportCommand = new DelegateCommand(OnExport);
-            PrevPageCommand = new DelegateCommand(() => { if (PageIndex > 1) { PageIndex--; LoadUsersAsync(); } });
-            NextPageCommand = new DelegateCommand(() => { if (PageIndex * PageSize < TotalCount) { PageIndex++; LoadUsersAsync(); } });
-            EditUserCommand = new DelegateCommand<User>(OnEditUser);
-            DeleteUserCommand = new DelegateCommand<User>(OnDeleteUser);
+            Title = "用户管理";
         }
 
-        private async void LoadUsersAsync()
+        /// <summary>
+        /// 当页码改变时重新加载数据
+        /// </summary>
+        partial void OnPageIndexChanged(int value) => LoadUsersAsync();
+
+        /// <summary>
+        /// 当每页显示数量改变时重置页码并重新加载
+        /// </summary>
+        partial void OnPageSizeChanged(int value)
+        {
+            PageIndex = 1;
+            LoadUsersAsync();
+        }
+
+        /// <summary>
+        /// 异步加载用户列表
+        /// </summary>
+        [RelayCommand]
+        private async Task LoadUsersAsync()
         {
             try
             {
                 _busyService.Busy("正在查询用户...");
-                await Task.CompletedTask;
+                // 模拟异步操作
+                await Task.Delay(100); 
                 
                 int total = 0;
                 var data = _userService.GetUsers(PageIndex, PageSize, SearchText, ref total);
@@ -84,8 +90,8 @@ namespace WpfAppDemo.ViewModels
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "加载用户列表失败");
-                await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "错误");
+                Log.Error(ex, "加载用户列表失败");
+                await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
             }
             finally
             {
@@ -93,11 +99,25 @@ namespace WpfAppDemo.ViewModels
             }
         }
 
-        private async void OnExport()
+        /// <summary>
+        /// 搜索命令
+        /// </summary>
+        [RelayCommand]
+        private void Search()
+        {
+            PageIndex = 1;
+            LoadUsersAsync();
+        }
+
+        /// <summary>
+        /// 导出 Excel 命令
+        /// </summary>
+        [RelayCommand]
+        private async Task Export()
         {
             try
             {
-                var sfd = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"用户导出_{DateTime.Now:yyyyMMddHHmm}" };
+                var sfd = new SaveFileDialog { Filter = "Excel 文件 (*.xlsx)|*.xlsx", FileName = $"用户导出_{DateTime.Now:yyyyMMddHHmm}" };
                 if (sfd.ShowDialog() == true)
                 {
                     _busyService.Busy("正在导出...");
@@ -117,20 +137,52 @@ namespace WpfAppDemo.ViewModels
             }
         }
 
-        private void OnAddUser() => _regionManager.RequestNavigate("ContentRegion", "UserEditView");
-        private void OnEditUser(User user) => _regionManager.RequestNavigate("ContentRegion", "UserEditView", new NavigationParameters { { "User", user } });
+        /// <summary>
+        /// 上一页命令
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanPrevPage))]
+        private void PrevPage() => PageIndex--;
+        private bool CanPrevPage() => PageIndex > 1;
 
-        private async void OnDeleteUser(User user)
+        /// <summary>
+        /// 下一页命令
+        /// </summary>
+        [RelayCommand(CanExecute = nameof(CanNextPage))]
+        private void NextPage() => PageIndex++;
+        private bool CanNextPage() => PageIndex * PageSize < TotalCount;
+
+        /// <summary>
+        /// 跳转至添加用户界面
+        /// </summary>
+        [RelayCommand]
+        private void AddUser() => _regionManager.RequestNavigate("ContentRegion", "UserEditView");
+
+        /// <summary>
+        /// 跳转至编辑用户界面
+        /// </summary>
+        [RelayCommand]
+        private void EditUser(User user) => _regionManager.RequestNavigate("ContentRegion", "UserEditView", new NavigationParameters { { "User", user } });
+
+        /// <summary>
+        /// 删除用户命令
+        /// </summary>
+        [RelayCommand]
+        private async Task DeleteUser(User user)
         {
             if (await _messageService.ShowConfirmationAsync($"确定要删除用户 '{user.Username}' 吗?", "Common_DeleteConfirm"))
             {
                 _userService.DeleteUser(user.Id);
-                LoadUsersAsync();
+                await LoadUsersAsync();
             }
         }
 
-        public void OnNavigatedTo(NavigationContext navigationContext) => LoadUsersAsync();
-        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-        public void OnNavigatedFrom(NavigationContext navigationContext) { }
+        /// <summary>
+        /// 导航进入页面时刷新列表
+        /// </summary>
+        public override void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            base.OnNavigatedTo(navigationContext);
+            LoadUsersAsync();
+        }
     }
 }

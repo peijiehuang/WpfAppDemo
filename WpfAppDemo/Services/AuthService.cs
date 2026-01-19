@@ -1,48 +1,44 @@
 using WpfAppDemo.Models;
-using SqlSugar;
-using System.Linq;
+using WpfAppDemo.Common;
 using Microsoft.Extensions.Configuration;
 
 namespace WpfAppDemo.Services
 {
-    public interface IAuthService
+    /// <summary>
+    /// 认证服务实现类
+    /// </summary>
+    public class AuthService : ServiceBase, IAuthService
     {
-        bool Login(string username, string password);
-        void SeedDefaultAdmin();
-    }
-
-    public class AuthService : IAuthService
-    {
-        private readonly SqlSugarClient _db;
-
-        public AuthService(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="configuration">配置接口</param>
+        public AuthService(IConfiguration configuration) : base(configuration)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                                 ?? "DataSource=app.db";
-
-            _db = new SqlSugarClient(new ConnectionConfig()
-            {
-                ConnectionString = connectionString,
-                DbType = DbType.Sqlite,
-                IsAutoCloseConnection = true,
-                InitKeyType = InitKeyType.Attribute
-            });
         }
 
+        /// <summary>
+        /// 执行登录逻辑
+        /// </summary>
         public bool Login(string username, string password)
         {
-            return _db.Queryable<User>().Any(u => u.Username == username && u.Password == password);
+            Logger.Information("尝试登录用户: {Username}", username);
+            return Db.Queryable<User>().Any(u => u.Username == username && u.Password == password);
         }
 
+        /// <summary>
+        /// 初始化默认管理员
+        /// </summary>
         public void SeedDefaultAdmin()
         {
-            if (!_db.Queryable<User>().Any(u => u.Username == "admin"))
+            if (!Db.Queryable<User>().Any(u => u.Username == "admin"))
             {
-                _db.Insertable(new User 
+                Logger.Information("初始化默认管理员账号...");
+                Db.Insertable(new User 
                 { 
                     Username = "admin", 
                     Password = "admin", 
-                    Name = "Administrator", 
+                    Name = "管理员", 
                     Role = "Admin" 
                 }).ExecuteCommand();
             }

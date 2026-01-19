@@ -3,7 +3,7 @@ using System.Windows.Controls;
 namespace WpfAppDemo.Views
 {
     /// <summary>
-    /// Interaction logic for CodeGenView.xaml
+    /// 代码生成器视图
     /// </summary>
     public partial class CodeGenView : UserControl
     {

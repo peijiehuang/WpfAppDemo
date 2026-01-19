@@ -1,78 +1,87 @@
-using Prism.Commands;
-using Prism.Mvvm;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Prism.Regions;
-using System;
+using {Namespace}.Common;
 using {Namespace}.Models;
 using {Namespace}.Services;
 
 namespace {Namespace}.ViewModels
 {
-    public class {TableName}EditViewModel : BindableBase, INavigationAware
+    /// <summary>
+    /// {TableName} 编辑界面视图模型
+    /// </summary>
+    public partial class {TableName}EditViewModel : ViewModelBase
     {
         private readonly I{TableName}Service _{camelTableName}Service;
         private readonly IRegionManager _regionManager;
+        private bool _isEditMode;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DisplayText))]
         private {TableName} _entity = new {TableName}();
-        private string _title = string.Empty;
 
-        public {TableName} Entity
-        {
-            get => _entity;
-            set => SetProperty(ref _entity, value);
-        }
+        /// <summary>
+        /// 动态标题
+        /// </summary>
+        public string DisplayText => _isEditMode ? "编辑 {TableName}" : "新增 {TableName}";
 
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
-
-        public DelegateCommand SaveCommand { get; }
-        public DelegateCommand CancelCommand { get; }
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public {TableName}EditViewModel(I{TableName}Service {camelTableName}Service, IRegionManager regionManager)
         {
             _{camelTableName}Service = {camelTableName}Service;
             _regionManager = regionManager;
-
-            SaveCommand = new DelegateCommand(OnSave);
-            CancelCommand = new DelegateCommand(OnCancel);
         }
 
-        private void OnSave()
+        /// <summary>
+        /// 保存命令
+        /// </summary>
+        [RelayCommand]
+        private void Save()
         {
             if (Entity == null) return;
 
-            if (Entity.Id == 0)
-                _{camelTableName}Service.Add{TableName}(Entity);
-            else
+            if (_isEditMode)
                 _{camelTableName}Service.Update{TableName}(Entity);
+            else
+                _{camelTableName}Service.Add{TableName}(Entity);
 
-            _regionManager.Regions["ContentRegion"].NavigationService.Journal.GoBack();
+            NavigateBack();
         }
 
-        private void OnCancel()
+        /// <summary>
+        /// 取消命令
+        /// </summary>
+        [RelayCommand]
+        private void Cancel()
         {
-            _regionManager.Regions["ContentRegion"].NavigationService.Journal.GoBack();
+            NavigateBack();
         }
 
-        public void OnNavigatedTo(NavigationContext navigationContext)
+        private void NavigateBack()
         {
+            _regionManager.RequestNavigate("ContentRegion", "{TableName}ListView");
+        }
+
+        public override void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            base.OnNavigatedTo(navigationContext);
+
             if (navigationContext.Parameters.ContainsKey("{TableName}"))
             {
                 var entity = navigationContext.Parameters.GetValue<{TableName}>("{TableName}");
                 if (entity != null)
                 {
                     Entity = entity;
-                    Title = "编辑 {TableName}";
+                    _isEditMode = true;
                     return;
                 }
             }
             
             Entity = new {TableName}();
-            Title = "新增 {TableName}";
+            _isEditMode = false;
         }
-
-        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-        public void OnNavigatedFrom(NavigationContext navigationContext) { }
     }
 }

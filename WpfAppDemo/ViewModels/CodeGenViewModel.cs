@@ -4,76 +4,108 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Text;
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Regions;
+using System.Threading.Tasks;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Serilog;
+using WpfAppDemo.Common;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    public class GeneratedFile : BindableBase
+    /// <summary>
+    /// 生成的文件模型
+    /// </summary>
+    public partial class GeneratedFile : ObservableObject
     {
+        [ObservableProperty]
         private string _name = string.Empty;
-        private string _path = string.Empty;
-        private string _content = string.Empty;
 
-        public string Name { get => _name; set => SetProperty(ref _name, value); }
-        public string Path { get => _path; set => SetProperty(ref _path, value); }
-        public string Content { get => _content; set => SetProperty(ref _content, value); }
+        [ObservableProperty]
+        private string _path = string.Empty;
+
+        [ObservableProperty]
+        private string _content = string.Empty;
     }
 
-    public class CodeGenViewModel : BindableBase
+    /// <summary>
+    /// 代码生成器视图模型
+    /// </summary>
+    public partial class CodeGenViewModel : ViewModelBase
     {
         private readonly ICodeGenService _codeGenService;
-        private string? _selectedTable;
-        private string _usageInstructions = string.Empty;
-        private string _lastExportPath = string.Empty;
         private const string Namespace = "WpfAppDemo";
 
-        public ObservableCollection<string> Tables { get; } = new ObservableCollection<string>();
-        public ObservableCollection<GeneratedFile> GeneratedFiles { get; } = new ObservableCollection<GeneratedFile>();
+        [ObservableProperty]
+        private string? _selectedTable;
 
-        public string UsageInstructions
-        {
-            get => _usageInstructions;
-            set => SetProperty(ref _usageInstructions, value);
-        }
+        [ObservableProperty]
+        private string _usageInstructions = string.Empty;
 
-        public string LastExportPath
-        {
-            get => _lastExportPath;
-            set => SetProperty(ref _lastExportPath, value);
-        }
+        [ObservableProperty]
+        private string _lastExportPath = string.Empty;
 
-        public string? SelectedTable
-        {
-            get => _selectedTable;
-            set
-            {
-                if (SetProperty(ref _selectedTable, value))
-                {
-                    UpdateGeneratedContent();
-                    UpdateUsageInstructions();
-                    LastExportPath = string.Empty;
-                }
-            }
-        }
+        /// <summary>
+        /// 数据库表列表
+        /// </summary>
+        public ObservableCollection<string> Tables { get; } = new();
 
-        public DelegateCommand SaveToDiskCommand { get; }
-        public DelegateCommand OpenExportFolderCommand { get; }
-        public DelegateCommand<string> CopyTextCommand { get; }
+        /// <summary>
+        /// 生成的文件预览列表
+        /// </summary>
+        public ObservableCollection<GeneratedFile> GeneratedFiles { get; } = new();
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public CodeGenViewModel(ICodeGenService codeGenService)
         {
             _codeGenService = codeGenService;
-            SaveToDiskCommand = new DelegateCommand(OnSaveToDisk);
-            OpenExportFolderCommand = new DelegateCommand(OnOpenExportFolder);
-            CopyTextCommand = new DelegateCommand<string>(OnCopyText);
+            Title = "代码生成";
             
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(LoadTables));
+            // 异步加载表名
+            LoadTablesAsync();
         }
 
-        private void OnOpenExportFolder()
+        /// <summary>
+        /// 当选择的表改变时，更新生成的预览内容
+        /// </summary>
+        partial void OnSelectedTableChanged(string? value)
+        {
+            UpdateGeneratedContent();
+            UpdateUsageInstructions();
+            LastExportPath = string.Empty;
+        }
+
+        private async void LoadTablesAsync()
+        {
+            try
+            {
+                var tables = await Task.Run(() => _codeGenService.GetTableNames());
+                Tables.Clear();
+                foreach (var table in tables) Tables.Add(table);
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex, "CodeGen: 加载表名失败");
+            }
+        }
+
+        /// <summary>
+        /// 复制文本到剪贴板
+        /// </summary>
+        [RelayCommand]
+        private void CopyText(string text)
+        {
+            if (!string.IsNullOrEmpty(text)) Clipboard.SetText(text);
+        }
+
+        /// <summary>
+        /// 打开导出所在的文件夹
+        /// </summary>
+        [RelayCommand]
+        private void OpenExportFolder()
         {
             if (string.IsNullOrEmpty(LastExportPath)) return;
             try
@@ -85,18 +117,22 @@ namespace WpfAppDemo.ViewModels
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"无法打开目录: {ex.Message}");
+                MessageBox.Show($"无法打开目录: {ex.Message}");
             }
         }
 
-        private void OnSaveToDisk()
+        /// <summary>
+        /// 将生成的代码保存到本地磁盘
+        /// </summary>
+        [RelayCommand]
+        private void SaveToDisk()
         {
-            if (!GeneratedFiles.Any()) return;
+            if (!GeneratedFiles.Any() || string.IsNullOrEmpty(SelectedTable)) return;
 
             try 
             {
                 string projectDir = Directory.GetCurrentDirectory();
-                string outputDir = Path.Combine(projectDir, "GeneratedCode", SelectedTable ?? "Unknown");
+                string outputDir = Path.Combine(projectDir, "GeneratedCode", SelectedTable);
 
                 if (Directory.Exists(outputDir)) Directory.Delete(outputDir, true);
                 Directory.CreateDirectory(outputDir);
@@ -111,30 +147,12 @@ namespace WpfAppDemo.ViewModels
                 }
 
                 LastExportPath = outputDir;
+                MessageBox.Show($"成功保存至: {outputDir}", "导出成功");
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show($"保存失败: {ex.Message}", "错误");
+                MessageBox.Show($"保存失败: {ex.Message}", "错误");
             }
-        }
-
-        private void OnLoadTables()
-        {
-            try
-            {
-                var tables = _codeGenService.GetTableNames();
-                Tables.Clear();
-                foreach (var table in tables) Tables.Add(table);
-            }
-            catch (Exception ex)
-            {
-                Serilog.Log.Error(ex, "CodeGen: Failed to load tables");
-            }
-        }
-
-        private void LoadTables()
-        {
-            OnLoadTables();
         }
 
         private void UpdateUsageInstructions()
@@ -168,9 +186,6 @@ namespace WpfAppDemo.ViewModels
             sb.AppendLine($"// 建议先在 Language.zh-CN.xaml 中添加资源键");
             sb.AppendLine($"MenuItems.Add(new MenuItem(\"Menu_{SelectedTable}\", \"Database\", \"{SelectedTable}ListView\"));");
             sb.AppendLine("```");
-            sb.AppendLine();
-            sb.AppendLine("## 4. 数据库提示");
-            sb.AppendLine($"- 此代码根据现有表结构生成。请确保数据库中已存在 `{SelectedTable}` 表。");
 
             UsageInstructions = sb.ToString();
         }
@@ -214,13 +229,8 @@ namespace WpfAppDemo.ViewModels
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "CodeGen: Failed to generate content");
+                Log.Error(ex, "CodeGen: 生成内容失败");
             }
-        }
-
-        private void OnCopyText(string text)
-        {
-            if (!string.IsNullOrEmpty(text)) System.Windows.Clipboard.SetText(text);
         }
 
         private string ReplaceTemplate(string fileName, string tableName, string camelTableName, List<SqlSugar.DbColumnInfo> columns)
@@ -251,27 +261,9 @@ namespace WpfAppDemo.ViewModels
             }
             else if (fileName == "Service.txt")
             {
-                string searchField = "Id"; 
-                if (columns.Count >= 2)
-                {
-                    searchField = columns[1].DbColumnName;
-                }
-                else if (columns.Count >= 1)
-                {
-                    searchField = columns[0].DbColumnName;
-                }
-
+                string searchField = columns.Count >= 2 ? columns[1].DbColumnName : (columns.Count >= 1 ? columns[0].DbColumnName : "Id");
                 var targetCol = columns.FirstOrDefault(c => c.DbColumnName == searchField);
-                string searchLogic;
-                if (targetCol != null && MapType(targetCol.DataType) == "string")
-                {
-                    searchLogic = $"it.{searchField}.Contains(keyword!)";
-                }
-                else
-                {
-                    searchLogic = $"it.{searchField}.ToString().Contains(keyword!)";
-                }
-
+                string searchLogic = (targetCol != null && MapType(targetCol.DataType) == "string") ? $"it.{searchField}.Contains(keyword!)" : $"it.{searchField}.ToString().Contains(keyword!)";
                 content = content.Replace("{SearchLogic}", searchLogic);
             }
             else if (fileName == "ListView.txt")
@@ -296,7 +288,6 @@ namespace WpfAppDemo.ViewModels
                 foreach (var col in columns)
                 {
                     if (col.IsIdentity || col.IsPrimarykey) continue;
-                    
                     controls.AppendLine($"                <TextBox materialDesign:HintAssist.Hint=\"{col.DbColumnName}\" Text=\"{{Binding {col.DbColumnName}}}\" Margin=\"0,8\" Style=\"{{StaticResource MaterialDesignFloatingHintTextBox}}\"/>");
                 }
                 content = content.Replace("{EditControls}", controls.ToString());

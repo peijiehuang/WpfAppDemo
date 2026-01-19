@@ -1,59 +1,72 @@
-using Prism.Commands;
-using Prism.Mvvm;
 using System;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using WpfAppDemo.Common;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    public class LoginViewModel : BindableBase
+    /// <summary>
+    /// 登录界面视图模型
+    /// </summary>
+    public partial class LoginViewModel : ViewModelBase
     {
         private readonly IAuthService _authService;
         private readonly ILocalizationService _localizationService;
+
+        [ObservableProperty]
         private string _username = string.Empty;
+
+        [ObservableProperty]
         private string _password = string.Empty;
+
+        [ObservableProperty]
         private string _errorMessage = string.Empty;
 
-        public string Username
-        {
-            get => _username;
-            set => SetProperty(ref _username, value);
-        }
-
-        public string Password
-        {
-            get => _password;
-            set => SetProperty(ref _password, value);
-        }
-
-        public string ErrorMessage
-        {
-            get => _errorMessage;
-            set => SetProperty(ref _errorMessage, value);
-        }
-
-        public DelegateCommand LoginCommand { get; }
-        public DelegateCommand<string> SwitchLanguageCommand { get; }
-
+        /// <summary>
+        /// 登录成功事件
+        /// </summary>
         public event Action? LoginSuccess;
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="authService">认证服务</param>
+        /// <param name="localizationService">本地化服务</param>
         public LoginViewModel(IAuthService authService, ILocalizationService localizationService)
         {
             _authService = authService;
             _localizationService = localizationService;
-            localizationService.LanguageChanged += () =>
-            {
-                if (!string.IsNullOrEmpty(ErrorMessage))
-                    ErrorMessage = System.Windows.Application.Current.TryFindResource("Login_Error")?.ToString() ?? "Login Failed";
-            };
-            LoginCommand = new DelegateCommand(OnLogin);
-            SwitchLanguageCommand = new DelegateCommand<string>(OnSwitchLanguage);
+            _localizationService.LanguageChanged += OnLanguageChanged;
+            
+            Title = "系统登录";
         }
 
-        private void OnSwitchLanguage(string languageCode)
+        private void OnLanguageChanged()
+        {
+            if (!string.IsNullOrEmpty(ErrorMessage))
+                UpdateErrorMessage();
+        }
+
+        private void UpdateErrorMessage()
+        {
+            ErrorMessage = Application.Current.TryFindResource("Login_Error")?.ToString() ?? "登录失败";
+        }
+
+        /// <summary>
+        /// 切换语言命令
+        /// </summary>
+        /// <param name="languageCode">语言代码</param>
+        [RelayCommand]
+        private void SwitchLanguage(string languageCode)
         {
             _localizationService.SetLanguage(languageCode);
         }
 
+        /// <summary>
+        /// 重置输入
+        /// </summary>
         public void Reset()
         {
             Username = string.Empty;
@@ -61,7 +74,11 @@ namespace WpfAppDemo.ViewModels
             ErrorMessage = string.Empty;
         }
 
-        private void OnLogin()
+        /// <summary>
+        /// 登录命令执行逻辑
+        /// </summary>
+        [RelayCommand]
+        private void Login()
         {
             if (_authService.Login(Username, Password))
             {
@@ -70,7 +87,7 @@ namespace WpfAppDemo.ViewModels
             }
             else
             {
-                ErrorMessage = System.Windows.Application.Current.TryFindResource("Login_Error")?.ToString() ?? "Login Failed";
+                UpdateErrorMessage();
             }
         }
     }

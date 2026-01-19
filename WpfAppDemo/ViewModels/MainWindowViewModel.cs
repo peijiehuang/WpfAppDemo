@@ -1,49 +1,54 @@
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Regions;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Microsoft.Extensions.Configuration;
-using WpfAppDemo.Services; // Assuming ILocalizationService is in this namespace
+using Prism.Regions;
+using Serilog;
+using WpfAppDemo.Common;
+using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    public class MainWindowViewModel : BindableBase
+    /// <summary>
+    /// 主窗口视图模型，负责全局导航和主菜单管理
+    /// </summary>
+    public partial class MainWindowViewModel : ViewModelBase
     {
         private readonly IRegionManager _regionManager;
         private readonly ILocalizationService _localizationService;
         private readonly IThemeService _themeService;
-        private readonly Microsoft.Extensions.Configuration.IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
+
+        /// <summary>
+        /// 忙碌状态服务，通过属性暴露给 UI 绑定
+        /// </summary>
         public IBusyService BusyService { get; }
-        private string _title = "WPF Prism Scaffolding";
+
+        [ObservableProperty]
         private MenuItem? _selectedMenuItem;
 
-        public string Title
-        {
-            get => _title;
-            set => SetProperty(ref _title, value);
-        }
+        /// <summary>
+        /// 菜单项集合
+        /// </summary>
+        public ObservableCollection<MenuItem> MenuItems { get; } = new();
 
-        public MenuItem? SelectedMenuItem
-        {
-            get => _selectedMenuItem;
-            set
-            {
-                if (SetProperty(ref _selectedMenuItem, value) && value != null)
-                {
-                    Navigate(value.NavigationPath);
-                }
-            }
-        }
-
-        public ObservableCollection<MenuItem> MenuItems { get; }
-        public DelegateCommand<string> SwitchLanguageCommand { get; }
-        public DelegateCommand LogoutCommand { get; }
-        public DelegateCommand ToggleThemeCommand { get; }
-
+        /// <summary>
+        /// 注销请求事件
+        /// </summary>
         public event Action? LogoutRequested;
 
-        public MainWindowViewModel(IRegionManager regionManager, ILocalizationService localizationService, IBusyService busyService, IThemeService themeService, Microsoft.Extensions.Configuration.IConfiguration configuration)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public MainWindowViewModel(
+            IRegionManager regionManager, 
+            ILocalizationService localizationService, 
+            IBusyService busyService, 
+            IThemeService themeService, 
+            IConfiguration configuration)
         {
             _regionManager = regionManager;
             _localizationService = localizationService;
@@ -51,22 +56,33 @@ namespace WpfAppDemo.ViewModels
             _configuration = configuration;
             BusyService = busyService;
 
+            Title = "WPF 优雅开发示例";
+
             _localizationService.LanguageChanged += OnLanguageChanged;
 
-            MenuItems = new ObservableCollection<MenuItem>();
             InitializeMenuItems();
 
-            SwitchLanguageCommand = new DelegateCommand<string>(OnSwitchLanguage);
-            LogoutCommand = new DelegateCommand(OnLogout);
-            ToggleThemeCommand = new DelegateCommand(OnToggleTheme);
-
-            // Use Dispatcher to ensure the view is loaded and regions are registered before initial navigation
-            System.Windows.Application.Current.Dispatcher.BeginInvoke(new System.Action(() =>
+            // 延迟加载初始页面，确保 Region 注册完成
+            Application.Current.Dispatcher.BeginInvoke(new Action(() =>
             {
                 SelectedMenuItem = MenuItems.FirstOrDefault();
             }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
+        /// <summary>
+        /// 当选中项变更时触发导航
+        /// </summary>
+        partial void OnSelectedMenuItemChanged(MenuItem? value)
+        {
+            if (value != null)
+            {
+                Navigate(value.NavigationPath);
+            }
+        }
+
+        /// <summary>
+        /// 重置主界面状态
+        /// </summary>
         public void Reset()
         {
             SelectedMenuItem = MenuItems.FirstOrDefault();
@@ -77,6 +93,7 @@ namespace WpfAppDemo.ViewModels
             MenuItems.Clear();
             MenuItems.Add(new MenuItem("Shell_Dashboard", "ViewDashboard", "DashboardView"));
             MenuItems.Add(new MenuItem("Shell_Users", "AccountGroup", "UserListView"));
+            MenuItems.Add(new MenuItem("Menu_Test", "Database", "TestListView"));
             if (_configuration.GetValue<bool>("AppSettings:EnableCodeGen"))
             {
                 MenuItems.Add(new MenuItem("Shell_CodeGen", "CodeArray", "CodeGenView"));
@@ -86,38 +103,61 @@ namespace WpfAppDemo.ViewModels
         private void OnLanguageChanged()
         {
             InitializeMenuItems();
-            // Also notify that Title properties might have changed if any
-            RaisePropertyChanged(nameof(MenuItems));
+            OnPropertyChanged(nameof(MenuItems));
         }
 
-        private void OnLogout()
+        /// <summary>
+        /// 注销登录命令
+        /// </summary>
+        [RelayCommand]
+        private void Logout()
         {
-            Serilog.Log.Information("User requested logout.");
+            Log.Information("用户请求注销。");
             LogoutRequested?.Invoke();
         }
 
-        private void OnToggleTheme()
+        /// <summary>
+        /// 切换主题命令
+        /// </summary>
+        [RelayCommand]
+        private void ToggleTheme()
         {
             _themeService.ToggleTheme();
         }
 
-        private void OnSwitchLanguage(string languageCode)
+        /// <summary>
+        /// 切换语言命令
+        /// </summary>
+        [RelayCommand]
+        private void SwitchLanguage(string languageCode)
         {
-            Serilog.Log.Information("Language switched to {Language}", languageCode);
+            Log.Information("切换语言至: {Language}", languageCode);
             _localizationService.SetLanguage(languageCode);
         }
 
         private void Navigate(string path)
         {
-            Serilog.Log.Debug("Navigating to {Path}", path);
+            Log.Debug("导航至: {Path}", path);
             _regionManager.RequestNavigate("ContentRegion", path);
         }
     }
 
+    /// <summary>
+    /// 菜单项模型
+    /// </summary>
     public class MenuItem
     {
+        /// <summary>
+        /// 标题（资源键）
+        /// </summary>
         public string Title { get; }
+        /// <summary>
+        /// 图标名称 (MaterialDesign)
+        /// </summary>
         public string Icon { get; }
+        /// <summary>
+        /// 导航路径
+        /// </summary>
         public string NavigationPath { get; }
 
         public MenuItem(string title, string icon, string navigationPath)

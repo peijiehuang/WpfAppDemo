@@ -1,58 +1,70 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
-using Microsoft.Extensions.Configuration;
-using WpfAppDemo.Models;
+using System.Linq;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using {Namespace}.Models;
+using {Namespace}.Common;
 using SqlSugar;
 using MiniExcelLibs;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace {Namespace}.Services
 {
-    public class {TableName}Service : I{TableName}Service
+    /// <summary>
+    /// {TableName} 业务服务实现
+    /// </summary>
+    public class {TableName}Service : ServiceBase, I{TableName}Service
     {
-        private readonly SqlSugarClient _db;
-
-        public {TableName}Service(IConfiguration configuration)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        public {TableName}Service(IConfiguration configuration) : base(configuration)
         {
-            var connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection") 
-                                 ?? "DataSource=app.db";
-
-            _db = new SqlSugarClient(new ConnectionConfig()
-            {
-                ConnectionString = connectionString,
-                DbType = DbType.Sqlite,
-                IsAutoCloseConnection = true,
-                InitKeyType = InitKeyType.Attribute
-            });
         }
 
+        /// <summary>
+        /// 分页获取数据
+        /// </summary>
         public IEnumerable<{TableName}> Get{TableName}s(int pageIndex, int pageSize, string? keyword, ref int totalCount)
         {
-            return _db.Queryable<{TableName}>()
+            return Db.Queryable<{TableName}>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
                 .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
+        /// <summary>
+        /// 新增数据
+        /// </summary>
         public void Add{TableName}({TableName} entity)
         {
-            _db.Insertable(entity).ExecuteCommand();
+            Logger.Information("新增 {TableName} 记录");
+            Db.Insertable(entity).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 更新数据
+        /// </summary>
         public void Update{TableName}({TableName} entity)
         {
-            _db.Updateable(entity).ExecuteCommand();
+            Logger.Information("更新 {TableName} 记录 ID: {Id}", entity.Id);
+            Db.Updateable(entity).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 删除数据
+        /// </summary>
         public void Delete{TableName}(int id)
         {
-            _db.Deleteable<{TableName}>().In(id).ExecuteCommand();
+            Logger.Information("删除 {TableName} 记录 ID: {Id}", id);
+            Db.Deleteable<{TableName}>().In(id).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 导出数据
+        /// </summary>
         public MemoryStream Export{TableName}s(string? keyword = null)
         {
-            var list = _db.Queryable<{TableName}>()
+            Logger.Information("导出 {TableName} 数据");
+            var list = Db.Queryable<{TableName}>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
                 .ToList();
             var stream = new MemoryStream();

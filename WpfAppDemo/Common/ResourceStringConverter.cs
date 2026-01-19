@@ -5,6 +5,9 @@ using System.Windows.Data;
 
 namespace WpfAppDemo.Common
 {
+    /// <summary>
+    /// 资源键转字符串转换器，尝试从应用程序资源中查找对应的本地化字符串
+    /// </summary>
     public class ResourceStringConverter : IValueConverter
     {
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)

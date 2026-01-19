@@ -1,42 +1,50 @@
-using Prism.Commands;
-using Prism.Mvvm;
+using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Prism.Regions;
+using WpfAppDemo.Common;
 using WpfAppDemo.Models;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    public class UserEditViewModel : BindableBase, INavigationAware
+    /// <summary>
+    /// 用户编辑/新增界面视图模型
+    /// </summary>
+    public partial class UserEditViewModel : ViewModelBase
     {
         private readonly IUserService _userService;
         private readonly IRegionManager _regionManager;
-        private User _user = new();
         private bool _isEditMode;
 
-        public User User
-        {
-            get => _user;
-            set => SetProperty(ref _user, value);
-        }
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(DisplayText))]
+        private User _user = new();
 
-        public string Title => _isEditMode 
-            ? (System.Windows.Application.Current.TryFindResource("User_EditTitle")?.ToString() ?? "Edit User")
-            : (System.Windows.Application.Current.TryFindResource("User_AddTitle")?.ToString() ?? "Add User");
+        /// <summary>
+        /// 界面显示的动态标题
+        /// </summary>
+        public string DisplayText => _isEditMode 
+            ? (Application.Current.TryFindResource("User_EditTitle")?.ToString() ?? "编辑用户")
+            : (Application.Current.TryFindResource("User_AddTitle")?.ToString() ?? "新增用户");
 
-        public DelegateCommand SaveCommand { get; }
-        public DelegateCommand CancelCommand { get; }
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public UserEditViewModel(IUserService userService, IRegionManager regionManager, ILocalizationService localizationService)
         {
             _userService = userService;
             _regionManager = regionManager;
-            localizationService.LanguageChanged += () => RaisePropertyChanged(nameof(Title));
-
-            SaveCommand = new DelegateCommand(OnSave);
-            CancelCommand = new DelegateCommand(OnCancel);
+            
+            // 订阅语言变更，动态刷新标题
+            localizationService.LanguageChanged += () => OnPropertyChanged(nameof(DisplayText));
         }
 
-        private void OnSave()
+        /// <summary>
+        /// 保存用户命令
+        /// </summary>
+        [RelayCommand]
+        private void Save()
         {
             if (_isEditMode)
                 _userService.UpdateUser(User);
@@ -46,7 +54,11 @@ namespace WpfAppDemo.ViewModels
             NavigateBack();
         }
 
-        private void OnCancel()
+        /// <summary>
+        /// 取消命令
+        /// </summary>
+        [RelayCommand]
+        private void Cancel()
         {
             NavigateBack();
         }
@@ -56,11 +68,17 @@ namespace WpfAppDemo.ViewModels
             _regionManager.RequestNavigate("ContentRegion", "UserListView");
         }
 
-        public void OnNavigatedTo(NavigationContext navigationContext)
+        /// <summary>
+        /// 导航进入时根据参数判断是新增还是编辑
+        /// </summary>
+        public override void OnNavigatedTo(NavigationContext navigationContext)
         {
+            base.OnNavigatedTo(navigationContext);
+
             if (navigationContext.Parameters.ContainsKey("User"))
             {
                 var user = navigationContext.Parameters.GetValue<User>("User");
+                // 克隆对象，避免直接修改列表中的引用导致取消后数据已变
                 User = new User
                 {
                     Id = user.Id,
@@ -77,10 +95,7 @@ namespace WpfAppDemo.ViewModels
                 User = new User();
                 _isEditMode = false;
             }
-            RaisePropertyChanged(nameof(Title));
+            OnPropertyChanged(nameof(DisplayText));
         }
-
-        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-        public void OnNavigatedFrom(NavigationContext navigationContext) { }
     }
 }

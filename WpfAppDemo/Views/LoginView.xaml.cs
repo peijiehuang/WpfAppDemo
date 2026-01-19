@@ -3,11 +3,16 @@ using WpfAppDemo.ViewModels;
 
 namespace WpfAppDemo.Views
 {
+    /// <summary>
+    /// 登录窗口交互逻辑
+    /// </summary>
     public partial class LoginView : Window
     {
         public LoginView()
         {
             InitializeComponent();
+            
+            // 监听密码框变更并同步到视图模型
             PasswordBox.PasswordChanged += (s, e) =>
             {
                 if (DataContext is LoginViewModel vm)

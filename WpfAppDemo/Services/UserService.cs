@@ -1,62 +1,81 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using WpfAppDemo.Models;
+using WpfAppDemo.Common;
 using SqlSugar;
 using MiniExcelLibs;
+using Microsoft.Extensions.Configuration;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace WpfAppDemo.Services
 {
-    public class UserService : IUserService
+    /// <summary>
+    /// 用户管理服务实现类
+    /// </summary>
+    public class UserService : ServiceBase, IUserService
     {
-        private readonly SqlSugarClient _db;
-
-        public UserService(IConfiguration configuration)
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="configuration">配置接口</param>
+        public UserService(IConfiguration configuration) : base(configuration)
         {
-            var connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection") 
-                                 ?? "DataSource=app.db";
-
-            _db = new SqlSugarClient(new ConnectionConfig()
-            {
-                ConnectionString = connectionString,
-                DbType = DbType.Sqlite,
-                IsAutoCloseConnection = true,
-                InitKeyType = InitKeyType.Attribute
-            });
         }
 
-        public void EnsureDatabaseCreated()
+        /// <summary>
+        /// 初始化表结构
+        /// </summary>
+        public override void EnsureDatabaseCreated()
         {
-            _db.DbMaintenance.CreateDatabase();
-            _db.CodeFirst.InitTables(typeof(User));
+            base.EnsureDatabaseCreated();
+            Logger.Information("初始化用户表结构...");
+            Db.CodeFirst.InitTables(typeof(User));
         }
 
+        /// <summary>
+        /// 分页获取用户
+        /// </summary>
         public IEnumerable<User> GetUsers(int pageIndex, int pageSize, string? keyword, ref int totalCount)
         {
-            return _db.Queryable<User>()
+            return Db.Queryable<User>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword!) || it.Name.Contains(keyword!) || it.Email.Contains(keyword!))
                 .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
+        /// <summary>
+        /// 添加用户
+        /// </summary>
         public void AddUser(User user)
         {
-            _db.Insertable(user).ExecuteCommand();
+            Logger.Information("添加用户: {Username}", user.Username);
+            Db.Insertable(user).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 更新用户
+        /// </summary>
         public void UpdateUser(User user)
         {
-            _db.Updateable(user).ExecuteCommand();
+            Logger.Information("更新用户 ID: {Id}", user.Id);
+            Db.Updateable(user).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 删除用户
+        /// </summary>
         public void DeleteUser(int id)
         {
-            _db.Deleteable<User>().In(id).ExecuteCommand();
+            Logger.Information("删除用户 ID: {Id}", id);
+            Db.Deleteable<User>().In(id).ExecuteCommand();
         }
 
+        /// <summary>
+        /// 导出数据到 Excel
+        /// </summary>
         public MemoryStream ExportUsers(string? keyword = null)
         {
-            var list = _db.Queryable<User>()
+            Logger.Information("导出用户数据...");
+            var list = Db.Queryable<User>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword!) || it.Name.Contains(keyword!) || it.Email.Contains(keyword!))
                 .ToList();
             var stream = new MemoryStream();

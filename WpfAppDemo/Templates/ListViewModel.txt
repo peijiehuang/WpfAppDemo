@@ -1,100 +1,93 @@
-using Prism.Commands;
-using Prism.Mvvm;
-using Prism.Regions;
 using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Prism.Regions;
+using Serilog;
+using {Namespace}.Common;
 using {Namespace}.Models;
 using {Namespace}.Services;
 
 namespace {Namespace}.ViewModels
 {
-    public class {TableName}ListViewModel : BindableBase, INavigationAware
+    /// <summary>
+    /// {TableName} 列表界面视图模型
+    /// </summary>
+    public partial class {TableName}ListViewModel : ViewModelBase
     {
         private readonly I{TableName}Service _{camelTableName}Service;
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
         
+        [ObservableProperty]
         private string _searchText = string.Empty;
+
+        [ObservableProperty]
         private int _pageIndex = 1;
+
+        [ObservableProperty]
         private int _pageSize = 20;
+
+        [ObservableProperty]
         private int _totalCount;
 
+        /// <summary>
+        /// 数据集合
+        /// </summary>
         public ObservableCollection<{TableName}> {TableName}s { get; } = new();
 
-        public string SearchText { get => _searchText; set => SetProperty(ref _searchText, value); }
-        public int PageIndex { get => _pageIndex; set => SetProperty(ref _pageIndex, value); }
-        public int TotalCount { get => _totalCount; set => SetProperty(ref _totalCount, value); }
-
-        public int PageSize
-        {
-            get => _pageSize;
-            set
-            {
-                if (SetProperty(ref _pageSize, value))
-                {
-                    PageIndex = 1;
-                    LoadDataAsync();
-                }
-            }
-        }
-
-        public DelegateCommand AddCommand { get; }
-        public DelegateCommand SearchCommand { get; }
-        public DelegateCommand ExportCommand { get; }
-        public DelegateCommand PrevPageCommand { get; }
-        public DelegateCommand NextPageCommand { get; }
-        public DelegateCommand<{TableName}> EditCommand { get; }
-        public DelegateCommand<{TableName}> DeleteCommand { get; }
-
+        /// <summary>
+        /// 构造函数
+        /// </summary>
         public {TableName}ListViewModel(I{TableName}Service {camelTableName}Service, IRegionManager regionManager, IBusyService busyService, IMessageService messageService)
         {
             _{camelTableName}Service = {camelTableName}Service;
             _regionManager = regionManager;
             _busyService = busyService;
             _messageService = messageService;
-
-            AddCommand = new DelegateCommand(OnAdd);
-            SearchCommand = new DelegateCommand(() => { PageIndex = 1; LoadDataAsync(); });
-            ExportCommand = new DelegateCommand(OnExport);
-            PrevPageCommand = new DelegateCommand(() => { if (PageIndex > 1) { PageIndex--; LoadDataAsync(); } });
-            NextPageCommand = new DelegateCommand(() => { if (PageIndex * PageSize < TotalCount) { PageIndex++; LoadDataAsync(); } });
-            EditCommand = new DelegateCommand<{TableName}>(OnEdit);
-            DeleteCommand = new DelegateCommand<{TableName}>(OnDelete);
+            Title = "{TableName} 管理";
         }
 
-        private async void LoadDataAsync()
+        partial void OnPageIndexChanged(int value) => LoadDataAsync();
+
+        partial void OnPageSizeChanged(int value)
+        {
+            PageIndex = 1;
+            LoadDataAsync();
+        }
+
+        /// <summary>
+        /// 加载数据
+        /// </summary>
+        [RelayCommand]
+        private async Task LoadDataAsync()
         {
             try
             {
                 _busyService.Busy("正在查询...");
-                await Task.CompletedTask; 
+                await Task.Delay(100); 
                 
                 int total = 0;
                 var data = _{camelTableName}Service.Get{TableName}s(PageIndex, PageSize, SearchText, ref total);
                 TotalCount = total;
 
-                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {TableName}s.Clear();
+                if (data != null)
                 {
-                    {TableName}s.Clear();
-                    if (data != null)
+                    foreach (var item in data)
                     {
-                        foreach (var item in data)
-                        {
-                            {TableName}s.Add(item);
-                        }
+                        {TableName}s.Add(item);
                     }
-                });
+                }
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "查询 {TableName} 列表失败");
-                await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () => {
-                    await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
-                });
+                Log.Error(ex, "查询 {TableName} 列表失败");
+                await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
             }
             finally
             {
@@ -102,11 +95,25 @@ namespace {Namespace}.ViewModels
             }
         }
 
-        private async void OnExport()
+        /// <summary>
+        /// 搜索
+        /// </summary>
+        [RelayCommand]
+        private void Search()
+        {
+            PageIndex = 1;
+            LoadDataAsync();
+        }
+
+        /// <summary>
+        /// 导出
+        /// </summary>
+        [RelayCommand]
+        private async Task Export()
         {
             try
             {
-                var sfd = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"{TableName}导出_{DateTime.Now:yyyyMMddHHmm}" };
+                var sfd = new SaveFileDialog { Filter = "Excel 文件 (*.xlsx)|*.xlsx", FileName = $"{TableName}导出_{DateTime.Now:yyyyMMddHHmm}" };
                 if (sfd.ShowDialog() == true)
                 {
                     _busyService.Busy("正在导出...");
@@ -126,29 +133,41 @@ namespace {Namespace}.ViewModels
             }
         }
 
-        private void OnAdd() => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
-        private void OnEdit({TableName} entity) => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", new NavigationParameters { { "{TableName}", entity } });
+        [RelayCommand(CanExecute = nameof(CanPrevPage))]
+        private void PrevPage() => PageIndex--;
+        private bool CanPrevPage() => PageIndex > 1;
 
-        private async void OnDelete({TableName} entity)
+        [RelayCommand(CanExecute = nameof(CanNextPage))]
+        private void NextPage() => PageIndex++;
+        private bool CanNextPage() => PageIndex * PageSize < TotalCount;
+
+        [RelayCommand]
+        private void Add() => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
+
+        [RelayCommand]
+        private void Edit({TableName} entity) => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", new NavigationParameters { { "{TableName}", entity } });
+
+        [RelayCommand]
+        private async Task Delete({TableName} entity)
         {
-            var msg = System.Windows.Application.Current.TryFindResource("Common_DeleteMessage")?.ToString() ?? "确定要删除这条记录吗?";
-            if (await _messageService.ShowConfirmationAsync(msg, "Common_DeleteConfirm"))
+            if (await _messageService.ShowConfirmationAsync("确定要删除这条记录吗?", "Common_DeleteConfirm"))
             {
                 try
                 {
                     _{camelTableName}Service.Delete{TableName}(entity.Id);
-                    LoadDataAsync();
+                    await LoadDataAsync();
                 }
                 catch (Exception ex)
                 {
-                    var errorTitle = System.Windows.Application.Current.TryFindResource("Common_Error")?.ToString() ?? "错误";
-                    await _messageService.ShowMessageAsync($"删除失败: {ex.Message}", errorTitle);
+                    await _messageService.ShowMessageAsync($"删除失败: {ex.Message}", "Common_Error");
                 }
             }
         }
 
-        public void OnNavigatedTo(NavigationContext navigationContext) => LoadDataAsync();
-        public bool IsNavigationTarget(NavigationContext navigationContext) => true;
-        public void OnNavigatedFrom(NavigationContext navigationContext) { }
+        public override void OnNavigatedTo(NavigationContext navigationContext)
+        {
+            base.OnNavigatedTo(navigationContext);
+            LoadDataAsync();
+        }
     }
 }
