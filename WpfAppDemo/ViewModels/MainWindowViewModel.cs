@@ -77,7 +77,6 @@ namespace WpfAppDemo.ViewModels
             MenuItems.Clear();
             MenuItems.Add(new MenuItem("Shell_Dashboard", "ViewDashboard", "DashboardView"));
             MenuItems.Add(new MenuItem("Shell_Users", "AccountGroup", "UserListView"));
-            MenuItems.Add(new MenuItem("Menu_TEST", "Database", "TESTListView"));
             if (_configuration.GetValue<bool>("AppSettings:EnableCodeGen"))
             {
                 MenuItems.Add(new MenuItem("Shell_CodeGen", "CodeArray", "CodeGenView"));
