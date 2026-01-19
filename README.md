@@ -1,53 +1,53 @@
 # WPF 现代化通用开发架构示例 (WpfAppDemo)
 
-这是一个基于 .NET 8 构建的工业级 WPF 快速开发架构。本项目通过深度集成 **Prism** 导航框架与 **CommunityToolkit.Mvvm**，并引入了**泛型业务基类设计**，旨在提供一个极简、优雅且高度规范的桌面应用开发模板。
+这是一个基于 .NET 8 构建的工业级 WPF 快速开发架构。本项目通过深度集成 **Prism** 导航框架与 **CommunityToolkit.Mvvm**，并引入了**全泛型业务驱动设计**，致力于提供一个极简、优雅且高度工程化的桌面应用开发模板。
 
 ## 核心技术栈
 
 - **UI 框架**: WPF (.NET 8)
 - **MVVM 核心**: 
-  - **Prism.DryIoc**: 负责依赖注入、视图导航及模块化解耦。
-  - **CommunityToolkit.Mvvm**: 利用 C# 源生成器实现响应式属性 (`[ObservableProperty]`) 和异步命令 (`[RelayCommand]`)。
-- **UI 组件库**: Material Design In XAML (提供工业级美观、易用的质感设计界面)。
-- **数据库 ORM**: SqlSugar (国产高性能 ORM，支持 SQLite 及多种主流数据库，内置 CodeFirst)。
-- **日志系统**: Serilog (结构化日志记录，自动输出至控制台及本地文件)。
-- **Excel 处理**: MiniExcel (高性能数据导入导出)。
-- **配置文件**: 基于 `appsettings.json` 的标准 Microsoft.Extensions.Configuration 体系。
+  - **Prism.DryIoc**: 强大的依赖注入、视图导航及模块化管理。
+  - **CommunityToolkit.Mvvm**: 利用 C# 源生成器实现高性能响应式属性 (`[ObservableProperty]`) 和异步命令 (`[RelayCommand]`)。
+- **UI 组件库**: Material Design In XAML (提供符合 Google Material Design 3 规范的现代化视觉交互)。
+- **数据库 ORM**: SqlSugar (支持多种主流数据库，具备卓越的性能和 CodeFirst 自动化维护能力)。
+- **日志系统**: Serilog (提供结构化日志支持，自动输出至控制台及按天滚动的文件)。
+- **Excel 处理**: MiniExcel (针对大数据量场景优化的极速导入导出引擎)。
+- **配置管理**: 基于 `appsettings.json` 的标准化多环境配置体系。
 
-## 架构优化亮点
+## 架构核心优势
 
-### 1. 深度泛型重构 (Generic Base Service)
-- **IBaseService<T>**: 统一定义了标准的 CRUD 接口（Insert, Update, Delete, GetById, GetPageList）。
-- **ServiceBase<T>**: 自动化实现了所有基础数据库操作。业务服务（如 `UserService`）仅需关注核心业务逻辑（如特殊过滤、导出），代码量减少 80%。
-- **SOLID 原则**: 严格遵守开闭原则与接口隔离原则，架构更具工业级水准。
+### 1. 全泛型业务基类 (ServiceBase<T>)
+- **代码极致精简**: 通过 `IBaseService<T>` 接口和 `ServiceBase<T>` 实现类，自动化处理了所有标准 CRUD（增删改查）操作。
+- **职责高度分离**: 业务服务（如 `UserService`）仅需关注复杂的领域逻辑（如多条件过滤、特定业务导出），无需再编写任何重复的底层数据库交互代码。
 
-### 2. 极致的 MVVM 开发体验
-- **零模板代码**: 通过源生成器技术，彻底告别繁琐的 `INotifyPropertyChanged` 样板代码。
-- **100% 纯净后台**: 利用 `PasswordBoxHelper` 附加属性，实现了 `PasswordBox` 的 MVVM 绑定，真正做到 View 后台代码（Code-Behind）零逻辑。
+### 2. 纯净的 MVVM 开发模式
+- **Zero Code-Behind**: 通过 `PasswordBoxHelper` 等附加属性，彻底解决了原生控件难以绑定的问题，实现了 View 后台代码的完全清理。
+- **生命周期管理**: `ViewModelBase` 深度封装了页面的标题管理、忙碌状态（IsBusy）控制以及 Prism 导航全生命周期监控。
 
-### 3. 智能代码生成器 (CodeGen 2.0)
-- **泛型适配**: 生成的代码自动继承 `ServiceBase<T>`，结构紧凑且完全符合项目规范。
-- **实时刷新**: 直连 `sqlite_master` 绕过 ORM 缓存，实时捕捉数据库表结构变更。
-- **UI 增强**: 侧边栏宽度优化与主内容区边框装饰，提供了更佳的交互视觉体验。
+### 3. 智能代码生成器 (CodeGen)
+- **生产力工具**: 支持根据数据库表结构实时生成全套源代码（Model, Service, VM, View），生成的代码完美契合项目泛型架构。
+- **实时同步**: 直连数据库底层 `sqlite_master`，支持手动刷新，确保对数据库结构的变更能实时捕捉并生成预览。
+- **极致视觉**: 优化后的页签布局与 160px 宽大侧边栏设计，提供了类似 IDE 的专业级代码预览体验。
 
-### 4. 工业级服务封装
-- **多语言 (L10n)**: 支持运行时一键切换中英文，资源文件包含清晰的分组注释。
-- **异步对话框**: 基于 Material Design 风格封装的 `MessageService`，调用简洁且支持 Task 等待。
-- **主题管理**: 运行时支持明亮/深色模式的平滑切换。
+### 4. 工业级通用服务
+- **本地化 (L10n)**: 完善的多语言支持体系，资源文件具备清晰的中文分组注释，支持运行时无缝切换。
+- **消息与对话框**: 封装了美观的异步弹窗服务，支持 Material Design 风格的消息提醒与操作确认。
 
-## 目录规范
+## 项目目录规范
 
-- `Common`: 架构基类（ViewModelBase, ServiceBase）与全局工具类（如 PasswordBoxHelper）。
-- `Models`: 纯净的数据实体与业务模型定义。
-- `Services`: 业务逻辑接口及其实现层（现已全面转向泛型驱动）。
-- `ViewModels`: 各页面的控制逻辑，集成忙碌状态管理。
-- `Views`: 纯净的 XAML 视图，采用现代化布局。
-- `Templates`: 精心调优的代码生成模板。
+- `Common`: 核心架构基类、通用转换器及 UI 附加属性助手。
+- `Models`: 业务实体模型定义。
+- `Services`: 基于泛型驱动的业务逻辑接口及其实现。
+- `ViewModels`: 页面逻辑控制中心，内置完善的加载状态反馈。
+- `Views`: 纯净的 XAML 视图界面，采用分层式现代布局。
+- `Templates`: 精心调优的代码生成 T4 风格模板。
 
-## 开发环境与运行
+## 开发指南
 
-1. **环境依赖**: 已安装 .NET 8 SDK。
-2. **启动程序**: 直接运行 `WpfAppDemo` 项目。
-3. **默认凭据**: 管理员账号 `admin` / 密码 `admin`。
-4. **全量注释**: 每一个 `.cs`、`.xaml` 文件均包含详尽的 **中文注释**。
+1. **环境**: 确保本地已安装 .NET 8 SDK。
+2. **数据库**: 程序启动时会自动在运行目录创建 `app.db` 并初始化表结构。
+3. **账号**: 默认管理员账号 `admin` / 密码 `admin`。
+4. **扩展**: 若需增加新功能，仅需在数据库建表后利用“代码生成器”一键生成全套代码即可完成基础开发。
 
+---
+*本项目代码包含 100% 的中文详尽注释，是一个经过深度重构、稳定可靠且极具美感的 WPF 企业级应用起点。*
