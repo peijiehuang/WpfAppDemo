@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:prism="http://prismlibrary.com/"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
              prism:ViewModelLocator.AutoWireViewModel="True">
     <Grid Margin="16">
         <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp1" VerticalAlignment="Stretch">
@@ -11,6 +12,7 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Header Section -->
@@ -19,19 +21,11 @@
                         <materialDesign:PackIcon Kind="AccountGroup" Width="24" Height="24" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
                         <TextBlock Text="{DynamicResource User_Title}" Style="{StaticResource MaterialDesignHeadline6TextBlock}" Margin="12,0,24,0" VerticalAlignment="Center" FontWeight="Bold"/>
                         
-                        <!-- Search Box -->
                         <materialDesign:ColorZone Mode="Standard" Padding="8,2" CornerRadius="4" materialDesign:ElevationAssist.Elevation="Dp0" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="1">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Magnify" Opacity=".5" VerticalAlignment="Center" Margin="4,0"/>
-                                <TextBox Width="200" 
-                                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                         materialDesign:HintAssist.Hint="输入关键字搜索..." 
-                                         materialDesign:TextFieldAssist.HasClearButton="True"
-                                         BorderThickness="0" 
-                                         VerticalAlignment="Center">
-                                    <TextBox.InputBindings>
-                                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}"/>
-                                    </TextBox.InputBindings>
+                                <TextBox Width="200" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="输入关键字搜索..." materialDesign:TextFieldAssist.HasClearButton="True" BorderThickness="0" VerticalAlignment="Center">
+                                    <TextBox.InputBindings><KeyBinding Key="Enter" Command="{Binding SearchCommand}"/></TextBox.InputBindings>
                                 </TextBox>
                             </StackPanel>
                         </materialDesign:ColorZone>
@@ -39,133 +33,87 @@
                     </StackPanel>
 
                     <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
-                        <Button Command="{Binding ExportCommand}" 
-                                ToolTip="{DynamicResource Common_ExportExcel}"
-                                Margin="0,0,12,0"
-                                Style="{StaticResource MaterialDesignOutlinedButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FileExcel" Width="18" Height="18" Margin="0,0,8,0"/>
-                                <TextBlock Text="{DynamicResource Common_ExportExcel}" VerticalAlignment="Center"/>
-                            </StackPanel>
+                        <Button Command="{Binding ExportCommand}" ToolTip="{DynamicResource Common_ExportExcel}" Margin="0,0,12,0" Style="{StaticResource MaterialDesignOutlinedButton}" materialDesign:ButtonAssist.CornerRadius="4">
+                            <StackPanel Orientation="Horizontal"><materialDesign:PackIcon Kind="FileExcel" Width="18" Height="18" Margin="0,0,8,0"/><TextBlock Text="{DynamicResource Common_ExportExcel}" VerticalAlignment="Center"/></StackPanel>
                         </Button>
-                        
-                        <Button Command="{Binding AddUserCommand}" 
-                                Content="{DynamicResource User_BtnAdd}" 
-                                Style="{StaticResource MaterialDesignRaisedButton}"
-                                materialDesign:ButtonAssist.CornerRadius="4"/>
+                        <Button Command="{Binding AddUserCommand}" Content="{DynamicResource User_BtnAdd}" Style="{StaticResource MaterialDesignRaisedButton}" materialDesign:ButtonAssist.CornerRadius="4"/>
                     </StackPanel>
                 </DockPanel>
 
                 <Separator Grid.Row="1" Style="{StaticResource MaterialDesignLightSeparator}" Margin="0"/>
 
                 <!-- DataGrid Section -->
-                <DataGrid Grid.Row="2" ItemsSource="{Binding Users}" 
-                          AutoGenerateColumns="False" 
-                          IsReadOnly="True" 
-                          CanUserAddRows="False"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}"
-                          BorderThickness="0"
-                          Background="Transparent"
-                          SelectionUnit="FullRow"
-                          Style="{StaticResource MaterialDesignDataGrid}">
+                <DataGrid Grid.Row="2" ItemsSource="{Binding Users}" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False" HeadersVisibility="Column" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0" Background="Transparent" SelectionUnit="FullRow" Style="{StaticResource MaterialDesignDataGrid}">
                     <DataGrid.Resources>
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
-                            <Setter Property="FontWeight" Value="Bold"/>
-                            <Setter Property="Padding" Value="16,12"/>
-                            <Setter Property="Background" Value="Transparent"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+                            <Setter Property="FontWeight" Value="Bold"/><Setter Property="Padding" Value="16,12"/><Setter Property="Background" Value="Transparent"/><Setter Property="HorizontalContentAlignment" Value="Center"/>
                         </Style>
                         <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
-                            <Setter Property="Padding" Value="16,10"/>
-                            <Setter Property="BorderThickness" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-                            <Setter Property="VerticalContentAlignment" Value="Center"/>
+                            <Setter Property="Padding" Value="16,10"/><Setter Property="BorderThickness" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Center"/><Setter Property="VerticalContentAlignment" Value="Center"/>
                         </Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="HorizontalAlignment" Value="Center"/>
-                            <Setter Property="VerticalAlignment" Value="Center"/>
-                        </Style>
+                        <Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="80">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Binding="{Binding Username}" Width="150">
-                            <DataGridTextColumn.Header>
-                                <TextBlock Text="{DynamicResource User_HeaderUsername}"/>
-                            </DataGridTextColumn.Header>
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.Header><TextBlock Text="{DynamicResource User_HeaderUsername}"/></DataGridTextColumn.Header>
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Binding="{Binding Name}" Width="*" MinWidth="150">
-                            <DataGridTextColumn.Header>
-                                <TextBlock Text="{DynamicResource User_HeaderName}"/>
-                            </DataGridTextColumn.Header>
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
+                        <DataGridTextColumn Binding="{Binding Name}" Width="*">
+                            <DataGridTextColumn.Header><TextBlock Text="{DynamicResource User_HeaderName}"/></DataGridTextColumn.Header>
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Binding="{Binding Email}" Width="1.5*" MinWidth="200">
-                            <DataGridTextColumn.Header>
-                                <TextBlock Text="{DynamicResource User_HeaderEmail}"/>
-                            </DataGridTextColumn.Header>
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
+                        <DataGridTextColumn Binding="{Binding Email}" Width="1.5*">
+                            <DataGridTextColumn.Header><TextBlock Text="{DynamicResource User_HeaderEmail}"/></DataGridTextColumn.Header>
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Binding="{Binding Role}" Width="120">
-                            <DataGridTextColumn.Header>
-                                <TextBlock Text="{DynamicResource User_HeaderRole}"/>
-                            </DataGridTextColumn.Header>
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center"/>
-                                    <Setter Property="VerticalAlignment" Value="Center"/>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.Header><TextBlock Text="{DynamicResource User_HeaderRole}"/></DataGridTextColumn.Header>
+                            <DataGridTextColumn.ElementStyle><Style TargetType="TextBlock"><Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/></Style></DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTemplateColumn Width="120" Header="操作">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Command="{Binding DataContext.EditUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                Width="32" Height="32"
-                                                Foreground="{DynamicResource PrimaryHueMidBrush}">
-                                            <materialDesign:PackIcon Kind="Pencil" Width="18" Height="18"/>
-                                        </Button>
-                                        <Button Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                CommandParameter="{Binding}"
-                                                Style="{StaticResource MaterialDesignIconButton}"
-                                                Width="32" Height="32"
-                                                Foreground="Red" Opacity="0.7" Margin="4,0,0,0">
-                                            <materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/>
-                                        </Button>
+                                        <Button Command="{Binding DataContext.EditUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32" Foreground="{DynamicResource PrimaryHueMidBrush}"><materialDesign:PackIcon Kind="Pencil" Width="18" Height="18"/></Button>
+                                        <Button Command="{Binding DataContext.DeleteUserCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" CommandParameter="{Binding}" Style="{StaticResource MaterialDesignIconButton}" Width="32" Height="32" Foreground="Red" Opacity="0.7" Margin="4,0,0,0"><materialDesign:PackIcon Kind="Delete" Width="18" Height="18"/></Button>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
+
+                <!-- Pagination Section -->
+                <Border Grid.Row="3" Background="#F9F9F9" Padding="16,8" BorderBrush="{DynamicResource MaterialDesignDivider}" BorderThickness="0,1,0,0">
+                    <DockPanel LastChildFill="False">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="共 " VerticalAlignment="Center" Foreground="#99000000"/><TextBlock Text="{Binding TotalCount}" FontWeight="Bold" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryHueMidBrush}"/><TextBlock Text=" 条记录" VerticalAlignment="Center" Foreground="#99000000" Margin="0,0,24,0"/>
+                            
+                            <TextBlock Text="每页 " VerticalAlignment="Center" Foreground="#99000000"/>
+                            <ComboBox SelectedValue="{Binding PageSize}" 
+                                      MinWidth="50"
+                                      VerticalAlignment="Center"
+                                      Style="{StaticResource MaterialDesignComboBox}">
+                                <system:Int32>10</system:Int32>
+                                <system:Int32>20</system:Int32>
+                                <system:Int32>50</system:Int32>
+                                <system:Int32>100</system:Int32>
+                            </ComboBox>
+                            <TextBlock Text=" 条" VerticalAlignment="Center" Foreground="#99000000"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                            <Button Command="{Binding PrevPageCommand}" Style="{StaticResource MaterialDesignFlatButton}" Width="40" Padding="0"><materialDesign:PackIcon Kind="ChevronLeft" Width="24" Height="24"/></Button>
+                            <TextBlock VerticalAlignment="Center" Margin="16,0">
+                                <Run Text="第 " Foreground="#99000000"/><Run Text="{Binding PageIndex}" FontWeight="Bold" Foreground="{DynamicResource PrimaryHueMidBrush}"/>
+                                <Run Text=" 页" Foreground="#99000000"/>
+                            </TextBlock>
+                            <Button Command="{Binding NextPageCommand}" Style="{StaticResource MaterialDesignFlatButton}" Width="40" Padding="0"><materialDesign:PackIcon Kind="ChevronRight" Width="24" Height="24"/></Button>
+                        </StackPanel>
+                    </DockPanel>
+                </Border>
             </Grid>
         </materialDesign:Card>
     </Grid>

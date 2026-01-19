@@ -17,19 +17,35 @@ namespace WpfAppDemo.ViewModels
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
+        
         private string _searchText = string.Empty;
+        private int _pageIndex = 1;
+        private int _pageSize = 20;
+        private int _totalCount;
 
         public ObservableCollection<User> Users { get; } = new();
 
-        public string SearchText
+        public string SearchText { get => _searchText; set => SetProperty(ref _searchText, value); }
+        public int PageIndex { get => _pageIndex; set => SetProperty(ref _pageIndex, value); }
+        public int PageSize
         {
-            get => _searchText;
-            set => SetProperty(ref _searchText, value);
+            get => _pageSize;
+            set
+            {
+                if (SetProperty(ref _pageSize, value))
+                {
+                    PageIndex = 1;
+                    LoadUsersAsync();
+                }
+            }
         }
+        public int TotalCount { get => _totalCount; set => SetProperty(ref _totalCount, value); }
 
         public DelegateCommand AddUserCommand { get; }
         public DelegateCommand SearchCommand { get; }
         public DelegateCommand ExportCommand { get; }
+        public DelegateCommand PrevPageCommand { get; }
+        public DelegateCommand NextPageCommand { get; }
         public DelegateCommand<User> EditUserCommand { get; }
         public DelegateCommand<User> DeleteUserCommand { get; }
 
@@ -41,8 +57,10 @@ namespace WpfAppDemo.ViewModels
             _messageService = messageService;
 
             AddUserCommand = new DelegateCommand(OnAddUser);
-            SearchCommand = new DelegateCommand(LoadUsersAsync);
+            SearchCommand = new DelegateCommand(() => { PageIndex = 1; LoadUsersAsync(); });
             ExportCommand = new DelegateCommand(OnExport);
+            PrevPageCommand = new DelegateCommand(() => { if (PageIndex > 1) { PageIndex--; LoadUsersAsync(); } });
+            NextPageCommand = new DelegateCommand(() => { if (PageIndex * PageSize < TotalCount) { PageIndex++; LoadUsersAsync(); } });
             EditUserCommand = new DelegateCommand<User>(OnEditUser);
             DeleteUserCommand = new DelegateCommand<User>(OnDeleteUser);
         }
@@ -52,12 +70,22 @@ namespace WpfAppDemo.ViewModels
             try
             {
                 _busyService.Busy("正在查询用户...");
-                await Task.CompletedTask; 
+                await Task.CompletedTask;
+                
+                int total = 0;
+                var data = _userService.GetUsers(PageIndex, PageSize, SearchText, ref total);
+                TotalCount = total;
+
                 Users.Clear();
-                foreach (var user in _userService.GetUsers(SearchText))
+                foreach (var user in data)
                 {
                     Users.Add(user);
                 }
+            }
+            catch (Exception ex)
+            {
+                Serilog.Log.Error(ex, "加载用户列表失败");
+                await _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "错误");
             }
             finally
             {
@@ -69,17 +97,11 @@ namespace WpfAppDemo.ViewModels
         {
             try
             {
-                var sfd = new SaveFileDialog
-                {
-                    Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"用户列表导出_{DateTime.Now:yyyyMMddHHmm}"
-                };
-
+                var sfd = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"用户导出_{DateTime.Now:yyyyMMddHHmm}" };
                 if (sfd.ShowDialog() == true)
                 {
                     _busyService.Busy("正在导出...");
-                    await Task.Run(() =>
-                    {
+                    await Task.Run(() => {
                         using var stream = _userService.ExportUsers(SearchText);
                         using var fileStream = File.Create(sfd.FileName);
                         stream.CopyTo(fileStream);
@@ -95,16 +117,8 @@ namespace WpfAppDemo.ViewModels
             }
         }
 
-        private void OnAddUser()
-        {
-            _regionManager.RequestNavigate("ContentRegion", "UserEditView");
-        }
-
-        private void OnEditUser(User user)
-        {
-            var parameters = new NavigationParameters { { "User", user } };
-            _regionManager.RequestNavigate("ContentRegion", "UserEditView", parameters);
-        }
+        private void OnAddUser() => _regionManager.RequestNavigate("ContentRegion", "UserEditView");
+        private void OnEditUser(User user) => _regionManager.RequestNavigate("ContentRegion", "UserEditView", new NavigationParameters { { "User", user } });
 
         private async void OnDeleteUser(User user)
         {

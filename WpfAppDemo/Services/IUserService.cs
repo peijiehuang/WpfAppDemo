@@ -6,7 +6,7 @@ namespace WpfAppDemo.Services
 {
     public interface IUserService
     {
-        IEnumerable<User> GetUsers(string? keyword = null);
+        IEnumerable<User> GetUsers(int pageIndex, int pageSize, string? keyword, ref int totalCount);
         void AddUser(User user);
         void UpdateUser(User user);
         void DeleteUser(int id);

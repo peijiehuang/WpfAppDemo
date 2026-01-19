@@ -32,11 +32,11 @@ namespace WpfAppDemo.Services
             _db.CodeFirst.InitTables(typeof(User));
         }
 
-        public IEnumerable<User> GetUsers(string? keyword = null)
+        public IEnumerable<User> GetUsers(int pageIndex, int pageSize, string? keyword, ref int totalCount)
         {
             return _db.Queryable<User>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword!) || it.Name.Contains(keyword!) || it.Email.Contains(keyword!))
-                .ToList();
+                .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
         public void AddUser(User user)
@@ -56,7 +56,9 @@ namespace WpfAppDemo.Services
 
         public MemoryStream ExportUsers(string? keyword = null)
         {
-            var list = GetUsers(keyword);
+            var list = _db.Queryable<User>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Username.Contains(keyword!) || it.Name.Contains(keyword!) || it.Email.Contains(keyword!))
+                .ToList();
             var stream = new MemoryStream();
             stream.SaveAs(list);
             stream.Seek(0, SeekOrigin.Begin);

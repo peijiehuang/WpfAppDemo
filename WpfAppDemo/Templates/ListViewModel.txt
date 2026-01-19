@@ -17,19 +17,36 @@ namespace {Namespace}.ViewModels
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
+        
         private string _searchText = string.Empty;
+        private int _pageIndex = 1;
+        private int _pageSize = 20;
+        private int _totalCount;
 
         public ObservableCollection<{TableName}> {TableName}s { get; } = new();
 
-        public string SearchText
+        public string SearchText { get => _searchText; set => SetProperty(ref _searchText, value); }
+        public int PageIndex { get => _pageIndex; set => SetProperty(ref _pageIndex, value); }
+        public int TotalCount { get => _totalCount; set => SetProperty(ref _totalCount, value); }
+
+        public int PageSize
         {
-            get => _searchText;
-            set => SetProperty(ref _searchText, value);
+            get => _pageSize;
+            set
+            {
+                if (SetProperty(ref _pageSize, value))
+                {
+                    PageIndex = 1;
+                    LoadDataAsync();
+                }
+            }
         }
 
         public DelegateCommand AddCommand { get; }
         public DelegateCommand SearchCommand { get; }
         public DelegateCommand ExportCommand { get; }
+        public DelegateCommand PrevPageCommand { get; }
+        public DelegateCommand NextPageCommand { get; }
         public DelegateCommand<{TableName}> EditCommand { get; }
         public DelegateCommand<{TableName}> DeleteCommand { get; }
 
@@ -41,8 +58,10 @@ namespace {Namespace}.ViewModels
             _messageService = messageService;
 
             AddCommand = new DelegateCommand(OnAdd);
-            SearchCommand = new DelegateCommand(LoadDataAsync);
+            SearchCommand = new DelegateCommand(() => { PageIndex = 1; LoadDataAsync(); });
             ExportCommand = new DelegateCommand(OnExport);
+            PrevPageCommand = new DelegateCommand(() => { if (PageIndex > 1) { PageIndex--; LoadDataAsync(); } });
+            NextPageCommand = new DelegateCommand(() => { if (PageIndex * PageSize < TotalCount) { PageIndex++; LoadDataAsync(); } });
             EditCommand = new DelegateCommand<{TableName}>(OnEdit);
             DeleteCommand = new DelegateCommand<{TableName}>(OnDelete);
         }
@@ -52,10 +71,12 @@ namespace {Namespace}.ViewModels
             try
             {
                 _busyService.Busy("正在查询...");
-                await Task.CompletedTask; // 避免同步执行警告
+                await Task.CompletedTask; 
                 
-                var data = _{camelTableName}Service.Get{TableName}s(SearchText);
-                
+                int total = 0;
+                var data = _{camelTableName}Service.Get{TableName}s(PageIndex, PageSize, SearchText, ref total);
+                TotalCount = total;
+
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
                     {TableName}s.Clear();
@@ -85,17 +106,11 @@ namespace {Namespace}.ViewModels
         {
             try
             {
-                var sfd = new SaveFileDialog
-                {
-                    Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"{TableName}导出_{DateTime.Now:yyyyMMddHHmm}"
-                };
-
+                var sfd = new SaveFileDialog { Filter = "Excel Files (*.xlsx)|*.xlsx", FileName = $"{TableName}导出_{DateTime.Now:yyyyMMddHHmm}" };
                 if (sfd.ShowDialog() == true)
                 {
                     _busyService.Busy("正在导出...");
-                    await Task.Run(() =>
-                    {
+                    await Task.Run(() => {
                         using var stream = _{camelTableName}Service.Export{TableName}s(SearchText);
                         using var fileStream = File.Create(sfd.FileName);
                         stream.CopyTo(fileStream);
@@ -111,16 +126,8 @@ namespace {Namespace}.ViewModels
             }
         }
 
-        private void OnAdd()
-        {
-            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
-        }
-
-        private void OnEdit({TableName} entity)
-        {
-            var parameters = new NavigationParameters { { "{TableName}", entity } };
-            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", parameters);
-        }
+        private void OnAdd() => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
+        private void OnEdit({TableName} entity) => _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", new NavigationParameters { { "{TableName}", entity } });
 
         private async void OnDelete({TableName} entity)
         {

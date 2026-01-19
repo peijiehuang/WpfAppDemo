@@ -6,7 +6,7 @@ namespace {Namespace}.Services
 {
     public interface I{TableName}Service
     {
-        IEnumerable<{TableName}> Get{TableName}s(string? keyword = null);
+        IEnumerable<{TableName}> Get{TableName}s(int pageIndex, int pageSize, string? keyword, ref int totalCount);
         void Add{TableName}({TableName} entity);
         void Update{TableName}({TableName} entity);
         void Delete{TableName}(int id);

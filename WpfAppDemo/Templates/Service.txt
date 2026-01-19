@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+using Microsoft.Extensions.Configuration;
 using WpfAppDemo.Models;
 using SqlSugar;
 using MiniExcelLibs;
@@ -27,11 +28,11 @@ namespace {Namespace}.Services
             });
         }
 
-        public IEnumerable<{TableName}> Get{TableName}s(string? keyword = null)
+        public IEnumerable<{TableName}> Get{TableName}s(int pageIndex, int pageSize, string? keyword, ref int totalCount)
         {
             return _db.Queryable<{TableName}>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
-                .ToList();
+                .ToPageList(pageIndex, pageSize, ref totalCount);
         }
 
         public void Add{TableName}({TableName} entity)
@@ -51,7 +52,9 @@ namespace {Namespace}.Services
 
         public MemoryStream Export{TableName}s(string? keyword = null)
         {
-            var list = Get{TableName}s(keyword);
+            var list = _db.Queryable<{TableName}>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
+                .ToList();
             var stream = new MemoryStream();
             stream.SaveAs(list);
             stream.Seek(0, SeekOrigin.Begin);

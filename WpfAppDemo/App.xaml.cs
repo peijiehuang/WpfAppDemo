@@ -127,12 +127,15 @@ namespace WpfAppDemo
             containerRegistry.RegisterSingleton<IMessageService, MessageService>();
             containerRegistry.RegisterSingleton<IThemeService, ThemeService>();
             containerRegistry.RegisterSingleton<ICodeGenService, CodeGenService>();
+            containerRegistry.RegisterSingleton<ITESTService, TESTService>();
 
             // Navigation Views
             containerRegistry.RegisterForNavigation<DashboardView>();
             containerRegistry.RegisterForNavigation<UserListView>();
             containerRegistry.RegisterForNavigation<UserEditView>();
             containerRegistry.RegisterForNavigation<CodeGenView>();
+            containerRegistry.RegisterForNavigation<TESTListView>();
+           containerRegistry.RegisterForNavigation<TESTEditView>();
         }
     }
 }
