@@ -1,37 +1,38 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    
     <!-- Login Page -->
     <sys:String x:Key="Login_Title">Login</sys:String>
     <sys:String x:Key="Login_Welcome">Welcome Back</sys:String>
-    <sys:String x:Key="Login_ProductTitle">ANTIGRAVITY</sys:String>
-    <sys:String x:Key="Login_ProductSubTitle">WPF SCAFFOLDING</sys:String>
-    <sys:String x:Key="Login_ProductDesc">Experience the perfect synergy of Prism, Material Design, and SqlSugar. Build enterprise-grade desktop applications with unmatched speed and elegance.</sys:String>
+    <sys:String x:Key="Login_ProductTitle">WPF Scaffold</sys:String>
+    <sys:String x:Key="Login_ProductSubTitle">WPF Elegant Framework Demo</sys:String>
+    <sys:String x:Key="Login_ProductDesc">Experience the perfect blend of Prism, Material Design, and SqlSugar. Build enterprise-grade desktop apps faster than ever.</sys:String>
     <sys:String x:Key="Login_SignIn">Sign In</sys:String>
     <sys:String x:Key="Login_Username">Username</sys:String>
     <sys:String x:Key="Login_Password">Password</sys:String>
-    <sys:String x:Key="Login_BtnLogin">LOG IN</sys:String>
-    <sys:String x:Key="Login_BtnExit">Exit Application</sys:String>
+    <sys:String x:Key="Login_BtnLogin">Login</sys:String>
+    <sys:String x:Key="Login_BtnExit">Exit</sys:String>
     <sys:String x:Key="Login_Error">Invalid username or password.</sys:String>
 
     <!-- Main Shell -->
     <sys:String x:Key="Shell_Title">WPF Material Design &amp; Prism Demo</sys:String>
     <sys:String x:Key="Shell_MenuTitle">App Menu</sys:String>
     <sys:String x:Key="Shell_Dashboard">Dashboard</sys:String>
-    <sys:String x:Key="Shell_Users">Users</sys:String>
+    <sys:String x:Key="Shell_Users">User Management</sys:String>
     <sys:String x:Key="Shell_SwitchLanguage">Language</sys:String>
-    <sys:String x:Key="Shell_Logout">Sign Out</sys:String>
-    <sys:String x:Key="Shell_ToggleTheme">Toggle Theme</sys:String>
+    <sys:String x:Key="Shell_Logout">Logout</sys:String>
+    <sys:String x:Key="Shell_ToggleTheme">Theme</sys:String>
     <sys:String x:Key="Shell_CodeGen">Code Generator</sys:String>
     <sys:String x:Key="Menu_TEST">TEST Management</sys:String>
 
     <!-- Dashboard -->
-    <sys:String x:Key="Dashboard_Welcome">Welcome to WPF Scaffolding</sys:String>
+    <sys:String x:Key="Dashboard_Welcome">Welcome to WPF Rapid Development Scaffold</sys:String>
     <sys:String x:Key="Dashboard_SubTitle">Built with Prism Framework + Material Design</sys:String>
 
     <!-- User Management -->
     <sys:String x:Key="User_Title">User Management</sys:String>
-    <sys:String x:Key="User_BtnAdd">ADD USER</sys:String>
+    <sys:String x:Key="User_BtnAdd">Add User</sys:String>
     <sys:String x:Key="User_HeaderUsername">Username</sys:String>
     <sys:String x:Key="User_HeaderName">Name</sys:String>
     <sys:String x:Key="User_HeaderEmail">Email</sys:String>
@@ -46,27 +47,30 @@
     <sys:String x:Key="User_HintName">Full Name</sys:String>
     <sys:String x:Key="User_HintEmail">Email Address</sys:String>
     <sys:String x:Key="User_HintRole">Role</sys:String>
-    <sys:String x:Key="User_BtnSave">SAVE</sys:String>
-    <sys:String x:Key="User_BtnCancel">CANCEL</sys:String>
+    <sys:String x:Key="User_BtnSave">Save</sys:String>
+    <sys:String x:Key="User_BtnCancel">Cancel</sys:String>
+
     <!-- Common / Global -->
-    <sys:String x:Key="Common_Confirm">CONFIRM</sys:String>
-    <sys:String x:Key="Common_Cancel">CANCEL</sys:String>
-    <sys:String x:Key="Common_Save">SAVE</sys:String>
-    <sys:String x:Key="Common_Delete">DELETE</sys:String>
+    <sys:String x:Key="Common_Confirm">OK</sys:String>
+    <sys:String x:Key="Common_Cancel">Cancel</sys:String>
+    <sys:String x:Key="Common_Save">Save</sys:String>
+    <sys:String x:Key="Common_Delete">Delete</sys:String>
     <sys:String x:Key="Common_Info">Information</sys:String>
     <sys:String x:Key="Common_Warning">Warning</sys:String>
     <sys:String x:Key="Common_Error">Error</sys:String>
-    <sys:String x:Key="Common_DeleteConfirm">Delete Confirm</sys:String>
+    <sys:String x:Key="Common_DeleteConfirm">Confirm Delete</sys:String>
     <sys:String x:Key="Common_DeleteMessage">Are you sure you want to delete this record?</sys:String>
     <sys:String x:Key="Common_Loading">Loading...</sys:String>
+    <sys:String x:Key="Common_Add">Add</sys:String>
     <sys:String x:Key="Common_ExportExcel">Export Excel</sys:String>
-    <sys:String x:Key="Common_ExportSuccess">Data exported successfully</sys:String>
+    <sys:String x:Key="Common_ExportSuccess">Data exported successfully.</sys:String>
 
     <!-- CodeGen -->
-    <sys:String x:Key="CodeGen_SelectTable">1. Select Table (Auto Preview)</sys:String>
-    <sys:String x:Key="CodeGen_Export">2. Export All Source Files</sys:String>
+    <sys:String x:Key="CodeGen_SelectTable">1. Select DB Table (Auto Preview)</sys:String>
+    <sys:String x:Key="CodeGen_Export">2. Export all generated files</sys:String>
     <sys:String x:Key="CodeGen_Instructions">Instructions</sys:String>
-    <sys:String x:Key="CodeGen_Preview">Code Preview</sys:String>
-    <sys:String x:Key="CodeGen_Path">Target Path: </sys:String>
-    <sys:String x:Key="CodeGen_Copy">Copy Content</sys:String>
+    <sys:String x:Key="CodeGen_Preview">Source Code Preview</sys:String>
+    <sys:String x:Key="CodeGen_Path">Export Path: </sys:String>
+    <sys:String x:Key="CodeGen_Copy">Copy Text</sys:String>
+
 </ResourceDictionary>

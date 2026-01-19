@@ -8,6 +8,7 @@ using Microsoft.Extensions.Configuration;
 using Prism.Regions;
 using Serilog;
 using WpfAppDemo.Common;
+using WpfAppDemo.Models;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
@@ -93,7 +94,6 @@ namespace WpfAppDemo.ViewModels
             MenuItems.Clear();
             MenuItems.Add(new MenuItem("Shell_Dashboard", "ViewDashboard", "DashboardView"));
             MenuItems.Add(new MenuItem("Shell_Users", "AccountGroup", "UserListView"));
-            MenuItems.Add(new MenuItem("Menu_Test", "Database", "TestListView"));
             if (_configuration.GetValue<bool>("AppSettings:EnableCodeGen"))
             {
                 MenuItems.Add(new MenuItem("Shell_CodeGen", "CodeArray", "CodeGenView"));
@@ -139,32 +139,6 @@ namespace WpfAppDemo.ViewModels
         {
             Log.Debug("导航至: {Path}", path);
             _regionManager.RequestNavigate("ContentRegion", path);
-        }
-    }
-
-    /// <summary>
-    /// 菜单项模型
-    /// </summary>
-    public class MenuItem
-    {
-        /// <summary>
-        /// 标题（资源键）
-        /// </summary>
-        public string Title { get; }
-        /// <summary>
-        /// 图标名称 (MaterialDesign)
-        /// </summary>
-        public string Icon { get; }
-        /// <summary>
-        /// 导航路径
-        /// </summary>
-        public string NavigationPath { get; }
-
-        public MenuItem(string title, string icon, string navigationPath)
-        {
-            Title = title;
-            Icon = icon;
-            NavigationPath = navigationPath;
         }
     }
 }

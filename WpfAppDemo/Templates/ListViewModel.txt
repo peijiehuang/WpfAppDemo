@@ -27,12 +27,16 @@ namespace {Namespace}.ViewModels
         private string _searchText = string.Empty;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(PrevPageCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _pageIndex = 1;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _pageSize = 20;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _totalCount;
 
         /// <summary>
@@ -52,29 +56,32 @@ namespace {Namespace}.ViewModels
             Title = "{TableName} 管理";
         }
 
-        partial void OnPageIndexChanged(int value) => LoadDataAsync();
+        partial void OnPageIndexChanged(int value)
+        {
+            // 由命令或显式调用控制加载
+        }
 
         partial void OnPageSizeChanged(int value)
         {
             PageIndex = 1;
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
 
         /// <summary>
         /// 加载数据
         /// </summary>
         [RelayCommand]
-        private async Task LoadDataAsync()
+        public async Task LoadDataAsync()
         {
             try
             {
                 _busyService.Busy("正在查询...");
-                await Task.Delay(100); 
+                await Task.Delay(50); 
                 
                 int total = 0;
-                var data = _{camelTableName}Service.Get{TableName}s(PageIndex, PageSize, SearchText, ref total);
+                var data = await Task.Run(() => _{camelTableName}Service.Get{TableName}s(PageIndex, PageSize, SearchText, ref total));
+                
                 TotalCount = total;
-
                 {TableName}s.Clear();
                 if (data != null)
                 {
@@ -99,10 +106,10 @@ namespace {Namespace}.ViewModels
         /// 搜索
         /// </summary>
         [RelayCommand]
-        private void Search()
+        private async Task Search()
         {
             PageIndex = 1;
-            LoadDataAsync();
+            await LoadDataAsync();
         }
 
         /// <summary>
@@ -134,11 +141,19 @@ namespace {Namespace}.ViewModels
         }
 
         [RelayCommand(CanExecute = nameof(CanPrevPage))]
-        private void PrevPage() => PageIndex--;
+        private async Task PrevPage() 
+        {
+            PageIndex--;
+            await LoadDataAsync();
+        }
         private bool CanPrevPage() => PageIndex > 1;
 
         [RelayCommand(CanExecute = nameof(CanNextPage))]
-        private void NextPage() => PageIndex++;
+        private async Task NextPage() 
+        {
+            PageIndex++;
+            await LoadDataAsync();
+        }
         private bool CanNextPage() => PageIndex * PageSize < TotalCount;
 
         [RelayCommand]
@@ -167,7 +182,7 @@ namespace {Namespace}.ViewModels
         public override void OnNavigatedTo(NavigationContext navigationContext)
         {
             base.OnNavigatedTo(navigationContext);
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
     }
 }

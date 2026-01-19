@@ -10,25 +10,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Serilog;
 using WpfAppDemo.Common;
+using WpfAppDemo.Models;
 using WpfAppDemo.Services;
 
 namespace WpfAppDemo.ViewModels
 {
-    /// <summary>
-    /// 生成的文件模型
-    /// </summary>
-    public partial class GeneratedFile : ObservableObject
-    {
-        [ObservableProperty]
-        private string _name = string.Empty;
-
-        [ObservableProperty]
-        private string _path = string.Empty;
-
-        [ObservableProperty]
-        private string _content = string.Empty;
-    }
-
     /// <summary>
     /// 代码生成器视图模型
     /// </summary>
@@ -65,7 +51,7 @@ namespace WpfAppDemo.ViewModels
             Title = "代码生成";
             
             // 异步加载表名
-            LoadTablesAsync();
+            _ = LoadTablesAsync();
         }
 
         /// <summary>
@@ -78,13 +64,24 @@ namespace WpfAppDemo.ViewModels
             LastExportPath = string.Empty;
         }
 
-        private async void LoadTablesAsync()
+        /// <summary>
+        /// 异步加载数据库表名
+        /// </summary>
+        [RelayCommand]
+        private async Task LoadTablesAsync()
         {
             try
             {
                 var tables = await Task.Run(() => _codeGenService.GetTableNames());
-                Tables.Clear();
-                foreach (var table in tables) Tables.Add(table);
+                
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    SelectedTable = null; // 清空当前选择，强制触发 UI 重新绑定
+                    Tables.Clear();
+                    foreach (var table in tables) Tables.Add(table);
+                });
+                
+                Log.Information("数据库表刷新成功。当前共有 {Count} 个表。", tables.Count);
             }
             catch (Exception ex)
             {

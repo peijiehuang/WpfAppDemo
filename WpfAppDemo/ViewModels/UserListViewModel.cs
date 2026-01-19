@@ -27,12 +27,16 @@ namespace WpfAppDemo.ViewModels
         private string _searchText = string.Empty;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(PrevPageCommand))]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _pageIndex = 1;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _pageSize = 20;
 
         [ObservableProperty]
+        [NotifyCanExecuteChangedFor(nameof(NextPageCommand))]
         private int _totalCount;
 
         /// <summary>
@@ -55,7 +59,10 @@ namespace WpfAppDemo.ViewModels
         /// <summary>
         /// 当页码改变时重新加载数据
         /// </summary>
-        partial void OnPageIndexChanged(int value) => LoadUsersAsync();
+        partial void OnPageIndexChanged(int value)
+        {
+            // 这里不再主动调用，由命令或显式调用控制，防止初始化时多次重复触发
+        }
 
         /// <summary>
         /// 当每页显示数量改变时重置页码并重新加载
@@ -63,25 +70,24 @@ namespace WpfAppDemo.ViewModels
         partial void OnPageSizeChanged(int value)
         {
             PageIndex = 1;
-            LoadUsersAsync();
+            _ = LoadUsersAsync();
         }
 
         /// <summary>
         /// 异步加载用户列表
         /// </summary>
         [RelayCommand]
-        private async Task LoadUsersAsync()
+        public async Task LoadUsersAsync()
         {
             try
             {
                 _busyService.Busy("正在查询用户...");
-                // 模拟异步操作
-                await Task.Delay(100); 
+                await Task.Delay(50); // 微小延迟提升 UX 感受
                 
                 int total = 0;
-                var data = _userService.GetUsers(PageIndex, PageSize, SearchText, ref total);
+                var data = await Task.Run(() => _userService.GetUsers(PageIndex, PageSize, SearchText, ref total));
+                
                 TotalCount = total;
-
                 Users.Clear();
                 foreach (var user in data)
                 {
@@ -103,10 +109,10 @@ namespace WpfAppDemo.ViewModels
         /// 搜索命令
         /// </summary>
         [RelayCommand]
-        private void Search()
+        private async Task Search()
         {
             PageIndex = 1;
-            LoadUsersAsync();
+            await LoadUsersAsync();
         }
 
         /// <summary>
@@ -141,14 +147,22 @@ namespace WpfAppDemo.ViewModels
         /// 上一页命令
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanPrevPage))]
-        private void PrevPage() => PageIndex--;
+        private async Task PrevPage() 
+        {
+            PageIndex--;
+            await LoadUsersAsync();
+        }
         private bool CanPrevPage() => PageIndex > 1;
 
         /// <summary>
         /// 下一页命令
         /// </summary>
         [RelayCommand(CanExecute = nameof(CanNextPage))]
-        private void NextPage() => PageIndex++;
+        private async Task NextPage() 
+        {
+            PageIndex++;
+            await LoadUsersAsync();
+        }
         private bool CanNextPage() => PageIndex * PageSize < TotalCount;
 
         /// <summary>
@@ -182,7 +196,7 @@ namespace WpfAppDemo.ViewModels
         public override void OnNavigatedTo(NavigationContext navigationContext)
         {
             base.OnNavigatedTo(navigationContext);
-            LoadUsersAsync();
+            _ = LoadUsersAsync();
         }
     }
 }

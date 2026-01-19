@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:prism="http://prismlibrary.com/"
+        xmlns:common="clr-namespace:WpfAppDemo.Common"
         mc:Ignorable="d"
         prism:ViewModelLocator.AutoWireViewModel="True"
         Title="{DynamicResource Login_Title}" Height="600" Width="1000"
@@ -86,6 +87,8 @@
 
                 <PasswordBox x:Name="PasswordBox" materialDesign:HintAssist.Hint="{DynamicResource Login_Password}" 
                              Style="{StaticResource MaterialDesignOutlinedPasswordBox}"
+                             common:PasswordBoxHelper.Attach="True"
+                             common:PasswordBoxHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              materialDesign:TextFieldAssist.HasClearButton="True"
                              Margin="0,0,0,8">
                     <PasswordBox.InputBindings>

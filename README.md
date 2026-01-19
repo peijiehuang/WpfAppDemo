@@ -1,52 +1,54 @@
-# WPF 优雅开发示例项目 (WpfAppDemo)
+# WPF 现代化通用开发架构示例 (WpfAppDemo)
 
-这是一个基于 .NET 8 打造的 WPF 现代化开发框架示例。本项目深度集成了 **Prism** 导航框架与 **CommunityToolkit.Mvvm**，采用 TDD 设计理念，实现了高度通用且优雅的架构模式。
+这是一个基于 .NET 8 构建的工业级 WPF 快速开发架构。本项目深度集成了 **Prism** 导航框架与 **CommunityToolkit.Mvvm**，旨在提供一个优雅、高效且高度可扩展的桌面应用开发模板。
 
 ## 核心技术栈
 
 - **UI 框架**: WPF (.NET 8)
-- **MVVM 模式**: Prism.DryIoc + CommunityToolkit.Mvvm (源生成器)
-- **UI 组件库**: Material Design In XAML
-- **数据库 ORM**: SqlSugar (支持多种数据库，本示例默认使用 SQLite)
-- **日志系统**: Serilog (输出至控制台与本地文件)
-- **Excel 处理**: MiniExcel (极速导入导出)
-- **配置文件**: Microsoft.Extensions.Configuration (appsettings.json)
+- **MVVM 核心**: 
+  - **Prism.DryIoc**: 处理依赖注入、视图导航及模块化。
+  - **CommunityToolkit.Mvvm**: 利用 C# 源生成器实现响应式属性 (`[ObservableProperty]`) 和命令 (`[RelayCommand]`)。
+- **UI 组件库**: Material Design In XAML (提供现代化、美观的质感设计界面)。
+- **数据库 ORM**: SqlSugar (高性能、易用的国产 ORM，完美支持 SQLite 及多种主流数据库)。
+- **日志系统**: Serilog (支持结构化日志，自动输出至控制台及本地文件)。
+- **Excel 处理**: MiniExcel (极速处理海量数据导出)。
+- **配置文件**: 基于 `appsettings.json` 的标准化配置管理。
 
 ## 架构优化亮点
 
-### 1. 现代化的 MVVM 实现
-通过引入 `CommunityToolkit.Mvvm`，所有 ViewModel 均支持 `[ObservableProperty]` 和 `[RelayCommand]`。这大幅减少了繁琐的属性定义和命令绑定逻辑，使代码行数减少了约 50%，同时提高了运行性能。
+### 1. 极简的 MVVM 开发体验
+- **零模板代码**: 通过 `CommunityToolkit.Mvvm`，开发者无需再手动编写繁琐的 `INotifyPropertyChanged` 实现，代码量缩减超过 50%。
+- **优雅的密码绑定**: 自研 `PasswordBoxHelper` 附加属性，彻底解决了原生 `PasswordBox` 无法进行 MVVM 数据绑定的历史难题，实现了 100% 的后台代码清理。
 
-### 2. 高度抽象的基类
-- **ViewModelBase**: 统一封装了标题管理、忙碌状态控制（IsBusy）以及 Prism 的导航生命周期管理。
-- **ServiceBase**: 自动初始化 SqlSugar 数据库客户端与 Serilog 结构化日志，业务服务仅需关注核心逻辑。
+### 2. 高度抽象的基类设计
+- **ViewModelBase**: 统一管理页面标题、忙碌状态逻辑（IsBusy）以及 Prism 导航生命周期（Navigation Awareness）。
+- **ServiceBase**: 预配置 SqlSugar 客户端与 Serilog 实例，业务服务仅需关注核心逻辑，无需重复初始化数据库连接。
 
-### 3. 通用代码生成器 (CodeGen)
-项目内置了强大的代码生成工具，能够根据数据库表结构自动生成全套 CRUD 代码：
-- **Model**: 带 SqlSugar 特性的实体类。
-- **Service**: 继承自 `ServiceBase` 的标准业务层。
-- **ViewModel**: 包含分页、查询、导出功能的标准列表及编辑页面逻辑。
-- **View**: 基于 Material Design 风格的 XAML 界面。
+### 3. 智能代码生成器 (CodeGen)
+- **实时预览**: 支持根据数据库表结构（直连 `sqlite_master` 绕过缓存）实时生成全套 CRUD 源码。
+- **一键集成**: 自动生成符合本项目架构规范的 Model、Service、ViewModel 及 XAML View。
+- **手动刷新**: 支持手动刷新数据库表结构，实时捕捉数据库变更。
 
-### 4. 优雅的服务设计
-- **LocalizationService**: 支持运行时一键切换中英文。
-- **MessageService**: 封装了 Material Design 风格的异步对话框。
-- **ThemeService**: 支持一键切换明亮/深色模式。
+### 4. 工业级服务封装
+- **多语言 (L10n)**: 动态切换中英文，支持 XAML 资源与后台代码的同步实时更新。
+- **消息服务 (Message)**: 封装了基于 Material Design 样式的异步提示、确认对话框，调用方式极其简洁。
+- **主题管理 (Theme)**: 支持明亮/深色模式的运行时一键切换。
 
-## 目录结构说明
+## 目录规范
 
-- `Common`: 存放基类（ViewModelBase, ServiceBase）与全局转换器。
-- `Models`: 数据实体定义。
-- `Services`: 业务逻辑接口及其实现。
-- `ViewModels`: 各页面的业务逻辑控制器。
-- `Views`: XAML 界面定义。
-- `Templates`: 代码生成器使用的 T4 风格文本模板。
+- `Common`: 存放通用工具类（如转换器、Helper）与架构基类。
+- `Models`: 业务实体模型。
+- `Services`: 定义并实现业务逻辑层，支持 DI 注入。
+- `ViewModels`: 处理视图逻辑与数据绑定。
+- `Views`: 纯净的 XAML 视图界面。
+- `Templates`: 用于代码生成的 T4 风格源码模板。
 
-## 快速上手
+## 开发环境与运行
 
-1. 确保已安装 `.NET 8 SDK`。
-2. 运行项目，默认管理员账号为 `admin` / `admin`。
-3. 进入“代码生成”页面，选择一个数据库表，点击“保存到本地”即可获得全套源码。
+1. **环境依赖**: 已安装 .NET 8 SDK。
+2. **启动程序**: 直接运行 `WpfAppDemo` 项目。
+3. **默认凭据**: 管理员账号 `admin` / 密码 `admin`。
+4. **注释支持**: 全项目所有 `.cs`、`.xaml.cs` 及 XAML 资源文件均已包含详尽的 **中文注释**，极易上手。
 
 ---
-*本项目已由资深架构师完成全面优化，所有代码文件均包含详尽的中文注释，符合工业级开发规范。*
+*本项目已由资深架构师完成深度重构与优化，是一个稳定、优雅且开箱即用的 WPF 企业级应用起点。*

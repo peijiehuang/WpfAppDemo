@@ -8,7 +8,7 @@
         <!-- 主卡片 -->
         <materialDesign:Card materialDesign:ElevationAssist.Elevation="Dp1" 
                             VerticalAlignment="Stretch"
-                            Background="White"
+                            Background="{DynamicResource MaterialDesignPaper}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource MaterialDesignDivider}">
             <Grid>
@@ -27,13 +27,22 @@
                         
                         <ComboBox ItemsSource="{Binding Tables}" 
                                   SelectedItem="{Binding SelectedTable}" 
-                                  materialDesign:HintAssist.Hint="{DynamicResource CodeGen_SelectTable}" 
+                                  materialDesign:HintAssist.Hint="选择数据库表" 
                                   Style="{StaticResource MaterialDesignFloatingHintComboBox}" 
                                   Width="300" VerticalAlignment="Center"/>
+
+                        <Button Command="{Binding LoadTablesCommand}" 
+                                Style="{StaticResource MaterialDesignIconButton}" 
+                                ToolTip="刷新数据库表"
+                                Margin="8,0,0,0"
+                                VerticalAlignment="Bottom"
+                                Width="32" Height="32">
+                            <materialDesign:PackIcon Kind="Refresh" />
+                        </Button>
                     </StackPanel>
 
                     <Button Command="{Binding SaveToDiskCommand}" 
-                            Content="{DynamicResource CodeGen_Export}" 
+                            Content="导出代码" 
                             DockPanel.Dock="Right"
                             Style="{StaticResource MaterialDesignRaisedButton}"
                             materialDesign:ButtonAssist.CornerRadius="4"/>
@@ -64,17 +73,26 @@
                 </Border>
 
                 <!-- 3. 主内容区 -->
-                <Grid Grid.Row="3">
+                <Border Grid.Row="3" 
+                        BorderBrush="{DynamicResource MaterialDesignDivider}" 
+                        BorderThickness="0,1,0,0"
+                        Background="{DynamicResource MaterialDesignPaper}">
                     <TabControl Style="{StaticResource MaterialDesignNavigationRailTabControl}" 
                                 TabStripPlacement="Left" 
                                 materialDesign:ColorZoneAssist.Mode="Standard"
-                                Background="White">
+                                Background="Transparent">
+                        <!-- 通过 ItemContainerStyle 统一设置侧边栏项的最小宽度 -->
+                        <TabControl.ItemContainerStyle>
+                            <Style TargetType="TabItem" BasedOn="{StaticResource {x:Type TabItem}}">
+                                <Setter Property="MinWidth" Value="140"/>
+                                <Setter Property="Padding" Value="16,10"/>
+                            </Style>
+                        </TabControl.ItemContainerStyle>
                         
                         <!-- Tab 1: 使用说明 -->
-                        <TabItem Header="{DynamicResource CodeGen_Instructions}">
+                        <TabItem Header="使用说明">
                             <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource MaterialDesignDivider}">
                                 <Grid Margin="24">
-                                    <!-- 为使用说明文本框添加边框 -->
                                     <Border BorderBrush="{DynamicResource MaterialDesignDivider}" 
                                             BorderThickness="1" 
                                             CornerRadius="8"
@@ -91,8 +109,8 @@
                             </Border>
                         </TabItem>
 
-                        <!-- Tab 2: 代码预览 -->
-                        <TabItem Header="{DynamicResource CodeGen_Preview}">
+                        <!-- Tab 2: 源码预览 -->
+                        <TabItem Header="源码预览">
                             <Border BorderThickness="1,0,0,0" BorderBrush="{DynamicResource MaterialDesignDivider}">
                                 <Grid Margin="16">
                                     <TabControl ItemsSource="{Binding GeneratedFiles}" 
@@ -105,7 +123,6 @@
                                                         <RowDefinition Height="Auto"/>
                                                         <RowDefinition Height="*"/>
                                                     </Grid.RowDefinitions>
-                                                    <!-- 使 Tab 标题支持水平滚动 -->
                                                     <ScrollViewer HorizontalScrollBarVisibility="Auto" 
                                                                   VerticalScrollBarVisibility="Disabled" 
                                                                   HorizontalAlignment="Stretch">
@@ -138,7 +155,6 @@
                                         <TabControl.ContentTemplate>
                                             <DataTemplate>
                                                 <DockPanel Margin="0,16,0,0">
-                                                    <!-- 路径栏：强化边框 -->
                                                     <Border DockPanel.Dock="Top" Background="#F5F5F5" 
                                                             BorderBrush="{DynamicResource MaterialDesignDivider}"
                                                             BorderThickness="1"
@@ -146,7 +162,7 @@
                                                         <Grid>
                                                             <StackPanel Orientation="Horizontal">
                                                                 <materialDesign:PackIcon Kind="FileCodeOutline" VerticalAlignment="Center" Margin="0,0,8,0" Opacity="0.6"/>
-                                                                <TextBlock Text="{DynamicResource CodeGen_Path}" VerticalAlignment="Center" FontWeight="Bold" Opacity="0.6"/>
+                                                                <TextBlock Text="路径: " VerticalAlignment="Center" FontWeight="Bold" Opacity="0.6"/>
                                                                 <TextBox Text="{Binding Path}" IsReadOnly="True" BorderThickness="0" Background="Transparent" VerticalAlignment="Center" Margin="4,0" Opacity="0.8"/>
                                                             </StackPanel>
                                                             <Button HorizontalAlignment="Right" 
@@ -157,7 +173,6 @@
                                                             </Button>
                                                         </Grid>
                                                     </Border>
-                                                    <!-- 代码编辑器：强化边框与圆角 -->
                                                     <Border BorderBrush="{DynamicResource MaterialDesignDivider}" 
                                                             BorderThickness="1" 
                                                             CornerRadius="8"
@@ -175,7 +190,7 @@
                                                                     Command="{Binding DataContext.CopyTextCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" 
                                                                     CommandParameter="{Binding Content}" 
                                                                     Style="{StaticResource MaterialDesignFloatingActionMiniSecondaryButton}" 
-                                                                    ToolTip="{DynamicResource CodeGen_Copy}">
+                                                                    ToolTip="复制内容">
                                                                 <materialDesign:PackIcon Kind="ContentCopy" Width="20" Height="20"/>
                                                             </Button>
                                                         </Grid>
@@ -188,7 +203,7 @@
                             </Border>
                         </TabItem>
                     </TabControl>
-                </Grid>
+                </Border>
             </Grid>
         </materialDesign:Card>
     </Grid>

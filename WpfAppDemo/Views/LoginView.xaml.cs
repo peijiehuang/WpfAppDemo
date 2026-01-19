@@ -1,5 +1,4 @@
 using System.Windows;
-using WpfAppDemo.ViewModels;
 
 namespace WpfAppDemo.Views
 {
@@ -11,15 +10,6 @@ namespace WpfAppDemo.Views
         public LoginView()
         {
             InitializeComponent();
-            
-            // 监听密码框变更并同步到视图模型
-            PasswordBox.PasswordChanged += (s, e) =>
-            {
-                if (DataContext is LoginViewModel vm)
-                {
-                    vm.Password = PasswordBox.Password;
-                }
-            };
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)

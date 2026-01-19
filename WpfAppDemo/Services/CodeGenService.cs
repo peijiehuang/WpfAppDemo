@@ -41,8 +41,10 @@ namespace WpfAppDemo.Services
         /// </summary>
         public List<string> GetTableNames()
         {
-            Logger.Information("获取数据库表列表...");
-            return Db.DbMaintenance.GetTableInfoList().Select(it => it.Name).ToList();
+            Logger.Information("正在从 sqlite_master 获取实时表结构...");
+            // 针对 SQLite，直接查询系统表是最可靠的，完全绕过任何可能的缓存
+            string sql = "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE 'sqlitestat%' ORDER BY name";
+            return Db.Ado.SqlQuery<string>(sql);
         }
 
         /// <summary>

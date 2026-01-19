@@ -151,15 +151,12 @@ namespace WpfAppDemo
             containerRegistry.RegisterSingleton<IMessageService, MessageService>();
             containerRegistry.RegisterSingleton<IThemeService, ThemeService>();
             containerRegistry.RegisterSingleton<ICodeGenService, CodeGenService>();
-            containerRegistry.RegisterSingleton<ITestService, TestService>();
 
             // 注册导航视图
             containerRegistry.RegisterForNavigation<DashboardView>();
             containerRegistry.RegisterForNavigation<UserListView>();
             containerRegistry.RegisterForNavigation<UserEditView>();
             containerRegistry.RegisterForNavigation<CodeGenView>();
-            containerRegistry.RegisterForNavigation<TestListView>();
-            containerRegistry.RegisterForNavigation<TestEditView>();
         }
     }
 }
