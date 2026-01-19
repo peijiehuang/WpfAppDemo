@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using {Namespace}.Models;
 
 namespace {Namespace}.Services
@@ -9,5 +10,6 @@ namespace {Namespace}.Services
         void Add{TableName}({TableName} entity);
         void Update{TableName}({TableName} entity);
         void Delete{TableName}(int id);
+        MemoryStream Export{TableName}s(string keyword = null);
     }
 }

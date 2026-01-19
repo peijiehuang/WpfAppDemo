@@ -1,6 +1,7 @@
 using SqlSugar;
 using System.ComponentModel;
 using System;
+using MiniExcelLibs.Attributes;
 
 namespace WpfAppDemo.Models
 {
@@ -15,9 +16,11 @@ namespace WpfAppDemo.Models
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = "User";
 
+        [ExcelIgnore]
         [SugarColumn(IsIgnore = true)]
         public string Error => null;
 
+        [ExcelIgnore]
         [SugarColumn(IsIgnore = true)]
         public string this[string columnName]
         {

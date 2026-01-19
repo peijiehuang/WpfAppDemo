@@ -1,27 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
+using System.IO;
 using WpfAppDemo.Models;
 using SqlSugar;
+using MiniExcelLibs;
 
 namespace WpfAppDemo.Services
 {
-    public interface IUserService
-    {
-        IEnumerable<User> GetUsers(string keyword = null);
-        void AddUser(User user);
-        void UpdateUser(User user);
-        void DeleteUser(int id);
-        void EnsureDatabaseCreated();
-    }
-
     public class UserService : IUserService
     {
         private readonly SqlSugarClient _db;
 
         public UserService(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
+            var connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection") 
                                  ?? "DataSource=app.db";
 
             _db = new SqlSugarClient(new ConnectionConfig()
@@ -59,6 +51,15 @@ namespace WpfAppDemo.Services
         public void DeleteUser(int id)
         {
             _db.Deleteable<User>().In(id).ExecuteCommand();
+        }
+
+        public MemoryStream ExportUsers(string keyword = null)
+        {
+            var list = GetUsers(keyword);
+            var stream = new MemoryStream();
+            stream.SaveAs(list);
+            stream.Seek(0, SeekOrigin.Begin);
+            return stream;
         }
     }
 }

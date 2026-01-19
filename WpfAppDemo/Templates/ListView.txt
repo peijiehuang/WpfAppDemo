@@ -38,11 +38,23 @@
                         <Button Command="{Binding SearchCommand}" Content="搜索" Margin="8,0,0,0" Style="{StaticResource MaterialDesignFlatButton}"/>
                     </StackPanel>
 
-                    <Button Command="{Binding AddCommand}" 
-                            Content="{DynamicResource Common_Add}" 
-                            DockPanel.Dock="Right"
-                            Style="{StaticResource MaterialDesignRaisedButton}"
-                            materialDesign:ButtonAssist.CornerRadius="4"/>
+                    <StackPanel Orientation="Horizontal" DockPanel.Dock="Right">
+                        <Button Command="{Binding ExportCommand}" 
+                                ToolTip="{DynamicResource Common_ExportExcel}"
+                                Margin="0,0,12,0"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileExcel" Width="18" Height="18" Margin="0,0,8,0"/>
+                                <TextBlock Text="{DynamicResource Common_ExportExcel}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                        
+                        <Button Command="{Binding AddCommand}" 
+                                Content="{DynamicResource Common_Add}" 
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                materialDesign:ButtonAssist.CornerRadius="4"/>
+                    </StackPanel>
                 </DockPanel>
 
                 <Separator Grid.Row="1" Style="{StaticResource MaterialDesignLightSeparator}" Margin="0"/>
@@ -60,14 +72,12 @@
                           SelectionUnit="FullRow"
                           Style="{StaticResource MaterialDesignDataGrid}">
                     <DataGrid.Resources>
-                        <!-- 表头居中 -->
                         <Style TargetType="DataGridColumnHeader" BasedOn="{StaticResource MaterialDesignDataGridColumnHeader}">
                             <Setter Property="FontWeight" Value="Bold"/>
                             <Setter Property="Padding" Value="16,12"/>
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="HorizontalContentAlignment" Value="Center"/>
                         </Style>
-                        <!-- 单元格内容垂直水平居中 -->
                         <Style TargetType="DataGridCell" BasedOn="{StaticResource MaterialDesignDataGridCell}">
                             <Setter Property="Padding" Value="16,10"/>
                             <Setter Property="BorderThickness" Value="0"/>

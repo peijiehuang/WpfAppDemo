@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
@@ -6,13 +6,13 @@ using WpfAppDemo.Models;
 using SqlSugar;
 using MiniExcelLibs;
 
-namespace {Namespace}.Services
+namespace WpfAppDemo.Services
 {
-    public class {TableName}Service : I{TableName}Service
+    public class TESTService : ITESTService
     {
         private readonly SqlSugarClient _db;
 
-        public {TableName}Service(Microsoft.Extensions.Configuration.IConfiguration configuration)
+        public TESTService(Microsoft.Extensions.Configuration.IConfiguration configuration)
         {
             var connectionString = Microsoft.Extensions.Configuration.ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection") 
                                  ?? "DataSource=app.db";
@@ -26,31 +26,31 @@ namespace {Namespace}.Services
             });
         }
 
-        public IEnumerable<{TableName}> Get{TableName}s(string keyword = null)
+        public IEnumerable<TEST> GetTESTs(string keyword = null)
         {
-            return _db.Queryable<{TableName}>()
-                .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
+            return _db.Queryable<TEST>()
+                .WhereIF(!string.IsNullOrEmpty(keyword), it => it.Name.Contains(keyword))
                 .ToList();
         }
 
-        public void Add{TableName}({TableName} entity)
+        public void AddTEST(TEST entity)
         {
             _db.Insertable(entity).ExecuteCommand();
         }
 
-        public void Update{TableName}({TableName} entity)
+        public void UpdateTEST(TEST entity)
         {
             _db.Updateable(entity).ExecuteCommand();
         }
 
-        public void Delete{TableName}(int id)
+        public void DeleteTEST(int id)
         {
-            _db.Deleteable<{TableName}>().In(id).ExecuteCommand();
+            _db.Deleteable<TEST>().In(id).ExecuteCommand();
         }
 
-        public MemoryStream Export{TableName}s(string keyword = null)
+        public MemoryStream ExportTESTs(string keyword = null)
         {
-            var list = Get{TableName}s(keyword);
+            var list = GetTESTs(keyword);
             var stream = new MemoryStream();
             stream.SaveAs(list);
             stream.Seek(0, SeekOrigin.Begin);

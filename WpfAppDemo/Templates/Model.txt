@@ -1,5 +1,6 @@
 using SqlSugar;
 using System;
+using MiniExcelLibs.Attributes;
 
 namespace {Namespace}.Models
 {

@@ -68,4 +68,6 @@
     <sys:String x:Key="CodeGen_Path">建议路径: </sys:String>
     <sys:String x:Key="CodeGen_Copy">复制内容</sys:String>
     <sys:String x:Key="Common_Add">新增</sys:String>
+    <sys:String x:Key="Common_ExportExcel">导出 Excel</sys:String>
+    <sys:String x:Key="Common_ExportSuccess">数据已成功导出</sys:String>
 </ResourceDictionary>

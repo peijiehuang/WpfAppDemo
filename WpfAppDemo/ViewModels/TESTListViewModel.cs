@@ -1,4 +1,4 @@
-using Prism.Commands;
+﻿using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Regions;
 using System;
@@ -6,20 +6,20 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.IO;
 using Microsoft.Win32;
-using {Namespace}.Models;
-using {Namespace}.Services;
+using WpfAppDemo.Models;
+using WpfAppDemo.Services;
 
-namespace {Namespace}.ViewModels
+namespace WpfAppDemo.ViewModels
 {
-    public class {TableName}ListViewModel : BindableBase, INavigationAware
+    public class TESTListViewModel : BindableBase, INavigationAware
     {
-        private readonly I{TableName}Service _{camelTableName}Service;
+        private readonly ITESTService _tESTService;
         private readonly IRegionManager _regionManager;
         private readonly IBusyService _busyService;
         private readonly IMessageService _messageService;
         private string _searchText = string.Empty;
 
-        public ObservableCollection<{TableName}> {TableName}s { get; } = new();
+        public ObservableCollection<TEST> TESTs { get; } = new();
 
         public string SearchText
         {
@@ -30,12 +30,12 @@ namespace {Namespace}.ViewModels
         public DelegateCommand AddCommand { get; }
         public DelegateCommand SearchCommand { get; }
         public DelegateCommand ExportCommand { get; }
-        public DelegateCommand<{TableName}> EditCommand { get; }
-        public DelegateCommand<{TableName}> DeleteCommand { get; }
+        public DelegateCommand<TEST> EditCommand { get; }
+        public DelegateCommand<TEST> DeleteCommand { get; }
 
-        public {TableName}ListViewModel(I{TableName}Service {camelTableName}Service, IRegionManager regionManager, IBusyService busyService, IMessageService messageService)
+        public TESTListViewModel(ITESTService tESTService, IRegionManager regionManager, IBusyService busyService, IMessageService messageService)
         {
-            _{camelTableName}Service = {camelTableName}Service;
+            _tESTService = tESTService;
             _regionManager = regionManager;
             _busyService = busyService;
             _messageService = messageService;
@@ -43,8 +43,8 @@ namespace {Namespace}.ViewModels
             AddCommand = new DelegateCommand(OnAdd);
             SearchCommand = new DelegateCommand(LoadDataAsync);
             ExportCommand = new DelegateCommand(OnExport);
-            EditCommand = new DelegateCommand<{TableName}>(OnEdit);
-            DeleteCommand = new DelegateCommand<{TableName}>(OnDelete);
+            EditCommand = new DelegateCommand<TEST>(OnEdit);
+            DeleteCommand = new DelegateCommand<TEST>(OnDelete);
         }
 
         private async void LoadDataAsync()
@@ -54,23 +54,23 @@ namespace {Namespace}.ViewModels
                 _busyService.Busy("正在查询...");
                 await Task.Delay(200); 
                 
-                var data = _{camelTableName}Service.Get{TableName}s(SearchText);
+                var data = _tESTService.GetTESTs(SearchText);
                 
                 System.Windows.Application.Current.Dispatcher.Invoke(() =>
                 {
-                    {TableName}s.Clear();
+                    TESTs.Clear();
                     if (data != null)
                     {
                         foreach (var item in data)
                         {
-                            {TableName}s.Add(item);
+                            TESTs.Add(item);
                         }
                     }
                 });
             }
             catch (Exception ex)
             {
-                Serilog.Log.Error(ex, "查询 {TableName} 列表失败");
+                Serilog.Log.Error(ex, "查询 TEST 列表失败");
                 System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => {
                     _messageService.ShowMessageAsync($"查询失败: {ex.Message}", "Common_Error");
                 }));
@@ -88,7 +88,7 @@ namespace {Namespace}.ViewModels
                 var sfd = new SaveFileDialog
                 {
                     Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"{TableName}导出_{DateTime.Now:yyyyMMddHHmm}"
+                    FileName = $"TEST导出_{DateTime.Now:yyyyMMddHHmm}"
                 };
 
                 if (sfd.ShowDialog() == true)
@@ -96,7 +96,7 @@ namespace {Namespace}.ViewModels
                     _busyService.Busy("正在导出...");
                     await Task.Run(() =>
                     {
-                        using var stream = _{camelTableName}Service.Export{TableName}s(SearchText);
+                        using var stream = _tESTService.ExportTESTs(SearchText);
                         using var fileStream = File.Create(sfd.FileName);
                         stream.CopyTo(fileStream);
                     });
@@ -113,23 +113,23 @@ namespace {Namespace}.ViewModels
 
         private void OnAdd()
         {
-            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView");
+            _regionManager.RequestNavigate("ContentRegion", "TESTEditView");
         }
 
-        private void OnEdit({TableName} entity)
+        private void OnEdit(TEST entity)
         {
-            var parameters = new NavigationParameters { { "{TableName}", entity } };
-            _regionManager.RequestNavigate("ContentRegion", "{TableName}EditView", parameters);
+            var parameters = new NavigationParameters { { "TEST", entity } };
+            _regionManager.RequestNavigate("ContentRegion", "TESTEditView", parameters);
         }
 
-        private async void OnDelete({TableName} entity)
+        private async void OnDelete(TEST entity)
         {
             var msg = System.Windows.Application.Current.TryFindResource("Common_DeleteMessage")?.ToString() ?? "确定要删除这条记录吗?";
             if (await _messageService.ShowConfirmationAsync(msg, "Common_DeleteConfirm"))
             {
                 try
                 {
-                    _{camelTableName}Service.Delete{TableName}(entity.Id);
+                    _tESTService.DeleteTEST(entity.Id);
                     LoadDataAsync();
                 }
                 catch (Exception ex)
