@@ -47,9 +47,9 @@ namespace WpfAppDemo.ViewModels
         private void Save()
         {
             if (_isEditMode)
-                _userService.UpdateUser(User);
+                _userService.Update(User);
             else
-                _userService.AddUser(User);
+                _userService.Insert(User);
 
             NavigateBack();
         }

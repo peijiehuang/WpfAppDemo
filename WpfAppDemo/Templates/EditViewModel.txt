@@ -44,9 +44,9 @@ namespace {Namespace}.ViewModels
             if (Entity == null) return;
 
             if (_isEditMode)
-                _{camelTableName}Service.Update{TableName}(Entity);
+                _{camelTableName}Service.Update(Entity);
             else
-                _{camelTableName}Service.Add{TableName}(Entity);
+                _{camelTableName}Service.Insert(Entity);
 
             NavigateBack();
         }

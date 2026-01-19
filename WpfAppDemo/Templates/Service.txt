@@ -1,28 +1,26 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
+using Microsoft.Extensions.Configuration;
 using {Namespace}.Models;
 using {Namespace}.Common;
 using SqlSugar;
 using MiniExcelLibs;
+using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace {Namespace}.Services
 {
     /// <summary>
     /// {TableName} 业务服务实现
     /// </summary>
-    public class {TableName}Service : ServiceBase, I{TableName}Service
+    public class {TableName}Service : ServiceBase<{TableName}>, I{TableName}Service
     {
-        /// <summary>
-        /// 构造函数
-        /// </summary>
         public {TableName}Service(IConfiguration configuration) : base(configuration)
         {
         }
 
         /// <summary>
-        /// 分页获取数据
+        /// 业务逻辑：分页查询
         /// </summary>
         public IEnumerable<{TableName}> Get{TableName}s(int pageIndex, int pageSize, string? keyword, ref int totalCount)
         {
@@ -32,38 +30,10 @@ namespace {Namespace}.Services
         }
 
         /// <summary>
-        /// 新增数据
-        /// </summary>
-        public void Add{TableName}({TableName} entity)
-        {
-            Logger.Information("新增 {TableName} 记录");
-            Db.Insertable(entity).ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 更新数据
-        /// </summary>
-        public void Update{TableName}({TableName} entity)
-        {
-            Logger.Information("更新 {TableName} 记录 ID: {Id}", entity.Id);
-            Db.Updateable(entity).ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 删除数据
-        /// </summary>
-        public void Delete{TableName}(int id)
-        {
-            Logger.Information("删除 {TableName} 记录 ID: {Id}", id);
-            Db.Deleteable<{TableName}>().In(id).ExecuteCommand();
-        }
-
-        /// <summary>
-        /// 导出数据
+        /// 业务逻辑：数据导出
         /// </summary>
         public MemoryStream Export{TableName}s(string? keyword = null)
         {
-            Logger.Information("导出 {TableName} 数据");
             var list = Db.Queryable<{TableName}>()
                 .WhereIF(!string.IsNullOrEmpty(keyword), it => {SearchLogic})
                 .ToList();

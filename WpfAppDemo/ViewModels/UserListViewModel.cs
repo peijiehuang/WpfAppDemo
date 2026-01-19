@@ -185,7 +185,7 @@ namespace WpfAppDemo.ViewModels
         {
             if (await _messageService.ShowConfirmationAsync($"确定要删除用户 '{user.Username}' 吗?", "Common_DeleteConfirm"))
             {
-                _userService.DeleteUser(user.Id);
+                _userService.Delete(user.Id);
                 await LoadUsersAsync();
             }
         }

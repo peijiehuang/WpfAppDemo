@@ -157,6 +157,7 @@ namespace WpfAppDemo
             containerRegistry.RegisterForNavigation<UserListView>();
             containerRegistry.RegisterForNavigation<UserEditView>();
             containerRegistry.RegisterForNavigation<CodeGenView>();
+
         }
     }
 }

@@ -169,7 +169,7 @@ namespace {Namespace}.ViewModels
             {
                 try
                 {
-                    _{camelTableName}Service.Delete{TableName}(entity.Id);
+                    _{camelTableName}Service.Delete(entity.Id);
                     await LoadDataAsync();
                 }
                 catch (Exception ex)

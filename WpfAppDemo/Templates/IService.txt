@@ -1,15 +1,22 @@
 using System.Collections.Generic;
 using System.IO;
-using WpfAppDemo.Models;
+using {Namespace}.Models;
 
 namespace {Namespace}.Services
 {
-    public interface I{TableName}Service
+    /// <summary>
+    /// {TableName} 业务服务接口
+    /// </summary>
+    public interface I{TableName}Service : IBaseService<{TableName}>
     {
+        /// <summary>
+        /// 分页获取 {TableName} 列表
+        /// </summary>
         IEnumerable<{TableName}> Get{TableName}s(int pageIndex, int pageSize, string? keyword, ref int totalCount);
-        void Add{TableName}({TableName} entity);
-        void Update{TableName}({TableName} entity);
-        void Delete{TableName}(int id);
+
+        /// <summary>
+        /// 导出 {TableName} 数据
+        /// </summary>
         MemoryStream Export{TableName}s(string? keyword = null);
     }
 }
